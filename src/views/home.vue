@@ -1,11 +1,11 @@
 <template>
   <v-header />
-  <v-sidebar />
-  <div
-    class="content-box"
-    :class="{ 'content-collapse': sidebar.collapse }"
-  >
-    <div class="content">
+  <div class="bottom-content">
+    <v-sidebar />
+    <div
+      class="content-box"
+      :class="{ 'content-collapse': sidebar.collapse }"
+    >
       <router-view v-slot="{ Component }">
         <transition
           name="move"
@@ -23,7 +23,7 @@
   import { useSidebarStore } from '../store/sidebar'
   import { useTagsStore } from '../store/tags'
   import vHeader from '../components/header.vue'
-  import vSidebar from '../components/sidebar.vue'
+  import vSidebar from '@/views/posterMaker/designElement.vue'
   import vTags from '../components/tags.vue'
 
   const sidebar = useSidebarStore()

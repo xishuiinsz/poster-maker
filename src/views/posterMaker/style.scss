@@ -4,12 +4,6 @@
     display: flex;
     flex-direction: column;
 
-    .operation-area {
-        height: 60px;
-        display: flex;
-        align-items: center;
-    }
-
     .design-workbench-container {
         height: 100%;
         width: 100%;
@@ -35,24 +29,20 @@
                     position: relative;
                     overflow: hidden;
 
-                    .layer-item {
+                    :deep(.layer-item) {
                         position: absolute;
 
                         &.is-active {
                             outline: 1px dashed lightseagreen;
                         }
 
-                        .html-wrap {
+                        .online-design-img {
                             width: 100%;
                             height: 100%;
-
-                            :deep(.online-design-img) {
-                                width: 100%;
-                                height: 100%;
-                                user-select: none !important;
-                                pointer-events: none !important;
-                            }
+                            user-select: none !important;
+                            pointer-events: none !important;
                         }
+
                     }
                 }
             }

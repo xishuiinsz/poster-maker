@@ -1,57 +1,9 @@
 <template>
   <div class="online-design-general-container">
-    <div class="operation-area">
-      <el-input-number
-        v-model="currentScale"
-        :precision="2"
-        @change="scaleChange"
-        :step="scaleStep"
-        :max="maxScale"
-        :min="minScale"
-      ></el-input-number>
-      <el-button
-        type="primary"
-        @click="fitBtnClick"
-        >合适大小</el-button
-      >
-      <el-button
-        type="primary"
-        @click="originBtnClick"
-        >原始大小</el-button
-      >
-      <el-upload
-        :multiple="false"
-        :show-file-list="false"
-        :on-success="handleSuccess"
-        :before-upload="beforeUpload"
-        class="editor-slide-upload"
-        action="https://httpbin.org/post"
-      >
-        <el-button
-          size="small"
-          type="primary"
-        >
-          上传图片
-        </el-button>
-      </el-upload>
-      <el-button-group>
-        <el-button
-          @click="() => {}"
-          size="small"
-          type="primary"
-        >
-          裁剪框
-        </el-button>
-        <el-button
-          @click="() => {}"
-          size="small"
-          type="primary"
-        >
-          开始裁剪
-        </el-button>
-      </el-button-group>
-    </div>
-    <div class="design-workbench-container">
+    <div
+      ref="designWorkbench"
+      class="design-workbench-container"
+    >
       <div class="drawing-board-container">
         <div class="drawing-canvas-container">
           <div
@@ -72,9 +24,89 @@
             </template>
           </div>
         </div>
+        <rectZoomBox />
       </div>
     </div>
   </div>
 </template>
-<script src="./onlineDesign"></script>
+<script setup lang="ts" name="PosterMaker">
+  import { onMounted, reactive, ref, computed, watch } from 'vue'
+  import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
+  import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
+  import { layerList, wzoomModel, selectedLayerIds } from './var.js'
+  import { useSidebarStore, minScale, maxScale } from './useCanvasStage.js'
+  import rectZoomBox from './rectZoomBox.vue'
+  import { registerEvt } from './mouseEvent'
+  const { scaleChange } = useSidebarStore()
+  const designWorkbench = ref(null)
+  const stageSize = reactive({
+    width: 800,
+    height: 600,
+  })
+  const activeLayerList = reactive(layerList)
+  watch(selectedLayerIds, (newVal, oldval) => {
+    console.log(newVal)
+  })
+  const stageStyle = computed(() => {
+    const { width, height } = stageSize
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+    }
+  })
+
+  function getLayerItemClass(layer) {
+    let className = `layer-${layer.type}`
+    if (activeLayerList.map((item) => item.layerId).includes(layer.id)) {
+      className += ' is-active'
+    }
+    return className
+  }
+
+  function getLayerStyle(item) {
+    const { width, height, x, y } = item
+    return {
+      width: width > 0 ? `${width}px` : 'fit-content',
+      height: height > 0 ? `${height}px` : 'fit-content',
+      left: `${x}px`,
+      top: `${y}px`,
+    }
+  }
+
+  function init(content) {
+    wzoomModel.instance = WZoom.create(content, {
+      type: 'html',
+      maxScale: maxScale,
+      width: stageSize.width,
+      height: stageSize.height,
+      zoomOnClick: false,
+      dragScrollableOptions: {
+        onGrab: () => {
+          content.parentElement.style.cursor = 'grabbing'
+        },
+        onDrop: () => {
+          content.parentElement.style.cursor = 'default'
+        },
+      },
+      prepare: (instance) => {
+        scaleChange(instance.content.minScale)
+      },
+      rescale: (instance) => {
+        scaleChange(instance.content.minScale)
+      },
+    })
+
+    window.addEventListener('resize', function () {
+      wzoomModel.instance.prepare()
+    })
+  }
+
+  onMounted(() => {
+    if (designWorkbench.value) {
+      const drawingCanvas = designWorkbench.value.querySelector('.drawing-canvas-container')
+      init(drawingCanvas)
+      registerEvt(designWorkbench.value)
+    }
+  })
+</script>
 <style src="./style.scss" lang="scss" scoped></style>
