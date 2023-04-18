@@ -3,8 +3,11 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted } from 'vue'
-  onMounted(() => {
-    console.log(`src\views\posterMaker\rectZoomBox.vue`)
+  import { onMounted, getCurrentInstance } from 'vue'
+  function computedZoomBoxStyle(elmentList) {
+    console.log(elmentList)
+  }
+  defineExpose({
+    computedZoomBoxStyle,
   })
 </script>

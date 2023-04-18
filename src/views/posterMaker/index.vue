@@ -24,7 +24,7 @@
             </template>
           </div>
         </div>
-        <rectZoomBox />
+        <rectZoomBox ref="refRectZoomBox" />
       </div>
     </div>
   </div>
@@ -39,6 +39,7 @@
   import { registerEvt } from './mouseEvent'
   const { scaleChange } = useSidebarStore()
   const designWorkbench = ref(null)
+  const refRectZoomBox = ref(null)
   const stageSize = reactive({
     width: 800,
     height: 600,
@@ -85,6 +86,8 @@
           content.parentElement.style.cursor = 'grabbing'
         },
         onDrop: () => {
+          console.log('onDrop')
+
           content.parentElement.style.cursor = 'default'
         },
       },
@@ -99,6 +102,13 @@
     window.addEventListener('resize', function () {
       wzoomModel.instance.prepare()
     })
+  }
+
+  function observeEleStyleMutation(el) {
+    let observer = new MutationObserver((mutations) => {
+      console.log(mutations)
+    })
+    observer.observe(el, { attributes: true, attributeFilter: ['style'] })
   }
 
   onMounted(() => {
