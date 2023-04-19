@@ -12,8 +12,8 @@ export const wzoomModel = {
 export const layerList = [
   {
     id: '0',
-    width: -1,
-    height: -1,
+    width: '100%',
+    height: '100%',
     x: 0,
     y: 0,
     type: 'background',

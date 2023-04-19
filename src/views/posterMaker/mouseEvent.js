@@ -1,18 +1,29 @@
 import { watch, computed } from 'vue'
-import { selectedLayersMap, selectedLayerIds } from './var'
+import { selectedLayersMap } from './var'
 import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
+import { useCanvasStageStore } from './useCanvasStage.js'
+import { storeToRefs } from 'pinia'
+const canvasStageStore = useCanvasStageStore()
+const { selectedLayerIds } = storeToRefs(canvasStageStore)
 function layerItemMousedown(e, layerItemEl) {
   const { layerId } = layerItemEl.dataset
-  const layerItemModel = getLayerItemModelById(layerId)
+  // const layerItemModel = getLayerItemModelById(layerId)
   if (layerId) {
-    selectedLayerIds.length = 0
-    if (layerItemModel.type !== 'background' && !selectedLayerIds.includes(layerId)) {
-      selectedLayerIds.push(layerId)
-    }
+    canvasStageStore.$patch({
+      selectedLayerIds: [layerId],
+    })
+    // if (!selectedLayerIds.value.includes(layerId)) {
+    //   selectedLayerIds.value.push(layerId)
+    // }
     // generateRectOperateBox(layerId)
   }
 }
-function backgroundMousedown(e) {}
+function backgroundMousedown(e) {
+  console.log('backgroundMousedown')
+  canvasStageStore.$patch({
+    selectedLayerIds: [],
+  })
+}
 export function registerEvt(target) {
   target.addEventListener('mouseup', (e) => {
     e.stopPropagation()

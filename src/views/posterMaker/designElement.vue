@@ -1,7 +1,7 @@
 <template>
   <div class="design-element">
     <el-input-number
-      v-model="currentScale"
+      v-model="canvasStageStore.scaleRate"
       :precision="2"
       @change="scaleChange"
       :step="scaleStep"
@@ -52,9 +52,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { useSidebarStore, scaleStep, minScale, maxScale } from './useCanvasStage.js'
+  import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
   import { wzoomModel } from './var.js'
-  const { currentScale } = useSidebarStore()
+  const canvasStageStore = useCanvasStageStore()
   function fitBtnClick() {
     wzoomModel.instance.prepare()
   }
@@ -63,7 +63,6 @@
   }
   function scaleChange(currentValue, oldValue) {
     const { instance } = wzoomModel
-    console.log(instance)
     if (currentValue > oldValue) {
       instance.zoomUp()
     } else {

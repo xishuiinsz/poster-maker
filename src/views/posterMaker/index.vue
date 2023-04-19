@@ -24,7 +24,11 @@
             </template>
           </div>
         </div>
-        <rectZoomBox ref="refRectZoomBox" />
+        <rectZoomBox
+          v-if="canvasStageStore.selectedLayerIds.length"
+          :selectedLayerIds="canvasStageStore.selectedLayerIds"
+          ref="refRectZoomBox"
+        />
       </div>
     </div>
   </div>
@@ -33,11 +37,12 @@
   import { onMounted, reactive, ref, computed, watch } from 'vue'
   import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
   import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
-  import { layerList, wzoomModel, selectedLayerIds } from './var.js'
-  import { useSidebarStore, minScale, maxScale } from './useCanvasStage.js'
+  import { layerList, wzoomModel } from './var.js'
+  import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
   import rectZoomBox from './rectZoomBox.vue'
   import { registerEvt } from './mouseEvent'
-  const { scaleChange } = useSidebarStore()
+  const canvasStageStore = useCanvasStageStore()
+  const { scaleChange } = canvasStageStore
   const designWorkbench = ref(null)
   const refRectZoomBox = ref(null)
   const stageSize = reactive({
@@ -45,9 +50,6 @@
     height: 600,
   })
   const activeLayerList = reactive(layerList)
-  watch(selectedLayerIds, (newVal, oldval) => {
-    console.log(newVal)
-  })
   const stageStyle = computed(() => {
     const { width, height } = stageSize
     return {
@@ -67,8 +69,8 @@
   function getLayerStyle(item) {
     const { width, height, x, y } = item
     return {
-      width: width > 0 ? `${width}px` : 'fit-content',
-      height: height > 0 ? `${height}px` : 'fit-content',
+      width: width > 0 ? `${width}px` : width === '100%' ? '100%' : 'fit-content',
+      height: height > 0 ? `${height}px` : height === '100%' ? '100%' : 'fit-content',
       left: `${x}px`,
       top: `${y}px`,
     }
@@ -92,10 +94,13 @@
         },
       },
       prepare: (instance) => {
+        console.log('prepare')
+
         scaleChange(instance.content.minScale)
       },
       rescale: (instance) => {
-        scaleChange(instance.content.minScale)
+        // console.log('rescale')
+        // scaleChange(instance.content.minScale)
       },
     })
 
