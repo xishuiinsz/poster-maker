@@ -1,4 +1,4 @@
-import { layerList, layerItemClass } from './var.js'
+import { layerItemClass } from './var.js'
 export const getAncestorByClass = (target, classAname) => {
   if (target === null || target === document.body) {
     return null
@@ -17,7 +17,7 @@ export const getLayerItemDomById = (id) => {
   return instance
 }
 
-export const getLayerItemModelById = (id) => {
+export const getLayerItemModelById = (id, layerList) => {
   const layerItemModel = layerList.find((item) => item.id === id)
   if (layerItemModel) {
     return layerItemModel

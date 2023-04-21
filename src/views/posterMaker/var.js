@@ -9,7 +9,7 @@ export const layerItemClass = 'layer-item'
 export const wzoomModel = {
   instance: null,
 }
-export const layerList = [
+export const layerData = [
   {
     id: '0',
     width: '100%',

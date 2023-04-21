@@ -2,12 +2,13 @@
   <div
     :style="computedStyle"
     class="rect-zoom-box"
+    @mousedown.self="mousedownEvt"
   ></div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from '@vue/reactivity'
-  import { watch, getCurrentInstance, toRaw, reactive } from 'vue'
+  import { watch, computed, toRaw, reactive } from 'vue'
+  import { getLayerItemDomById } from './utils'
   const styleData = reactive({
     width: 0,
     height: 0,
@@ -35,11 +36,13 @@
   defineExpose({
     computedZoomBoxStyle,
   })
+  const emits = defineEmits(['updatePosition'])
   const generateStyle = () => {
     return { width: 300, height: 400, x: 300, y: 300 }
   }
   const generateStyleData = () => {
-    const { width, height, x, y } = generateStyle()
+    const layerItemDom = getLayerItemDomById(props.selectedLayerIds[0])
+    const { x, y, width, height } = layerItemDom.getBoundingClientRect()
     Object.assign(styleData, { width, height, x, y })
   }
   watch(
@@ -51,10 +54,26 @@
     }
   )
   generateStyleData()
+  // 鼠标按下事件
+  const mousedownEvt = (e) => {
+    document.addEventListener('mousemove', mousemoveEvt)
+    document.addEventListener('mouseup', mouseupEvt)
+  }
+  // 鼠标移动事件
+  const mousemoveEvt = (e) => {
+    styleData.x += e.movementX
+    styleData.y += e.movementY
+    emits('updatePosition', { offsetX: e.movementX, offsetY: e.movementY })
+  }
+  // 鼠标释放事件
+  const mouseupEvt = (e) => {
+    document.removeEventListener('mousemove', mousemoveEvt)
+    document.removeEventListener('mouseup', mouseupEvt)
+  }
 </script>
 <style lang="scss" scoped>
   .rect-zoom-box {
     position: absolute;
-    background-color: green;
+    outline: 1px solid #2932e1;
   }
 </style>

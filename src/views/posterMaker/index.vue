@@ -24,11 +24,14 @@
             </template>
           </div>
         </div>
-        <rectZoomBox
-          v-if="canvasStageStore.selectedLayerIds.length"
-          :selectedLayerIds="canvasStageStore.selectedLayerIds"
-          ref="refRectZoomBox"
-        />
+        <Teleport to="body">
+          <rectZoomBox
+            v-if="canvasStageStore.selectedLayerIds.length"
+            :selectedLayerIds="canvasStageStore.selectedLayerIds"
+            ref="refRectZoomBox"
+            @updatePosition="updatePositionHandler"
+          />
+        </Teleport>
       </div>
     </div>
   </div>
@@ -37,19 +40,19 @@
   import { onMounted, reactive, ref, computed, watch } from 'vue'
   import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
   import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
-  import { layerList, wzoomModel } from './var.js'
+  import { layerData, wzoomModel } from './var.js'
   import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
   import rectZoomBox from './rectZoomBox.vue'
   import { registerEvt } from './mouseEvent'
   const canvasStageStore = useCanvasStageStore()
-  const { scaleChange } = canvasStageStore
+  const { scaleChange, scaleRate } = canvasStageStore
   const designWorkbench = ref(null)
   const refRectZoomBox = ref(null)
   const stageSize = reactive({
     width: 800,
     height: 600,
   })
-  const activeLayerList = reactive(layerList)
+  const layerList = reactive(layerData)
   const stageStyle = computed(() => {
     const { width, height } = stageSize
     return {
@@ -60,7 +63,7 @@
 
   function getLayerItemClass(layer) {
     let className = `layer-${layer.type}`
-    if (activeLayerList.map((item) => item.layerId).includes(layer.id)) {
+    if (canvasStageStore.selectedLayerIds.includes(layer.id)) {
       className += ' is-active'
     }
     return className
@@ -99,8 +102,7 @@
         scaleChange(instance.content.minScale)
       },
       rescale: (instance) => {
-        // console.log('rescale')
-        // scaleChange(instance.content.minScale)
+        scaleChange(instance.content.currentScale)
       },
     })
 
@@ -108,7 +110,15 @@
       wzoomModel.instance.prepare()
     })
   }
-
+  const updatePositionHandler = ({ offsetX, offsetY }) => {
+    canvasStageStore.selectedLayerIds.forEach((id: string) => {
+      const layerItemModel = getLayerItemModelById(id, layerList)
+      if (layerItemModel) {
+        layerItemModel.x += offsetX / canvasStageStore.scaleRate
+        layerItemModel.y += offsetY / canvasStageStore.scaleRate
+      }
+    })
+  }
   function observeEleStyleMutation(el) {
     let observer = new MutationObserver((mutations) => {
       console.log(mutations)
