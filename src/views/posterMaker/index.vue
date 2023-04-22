@@ -29,7 +29,7 @@
             v-if="canvasStageStore.selectedLayerIds.length"
             :selectedLayerIds="canvasStageStore.selectedLayerIds"
             ref="refRectZoomBox"
-            @updatePosition="updatePositionHandler"
+            @updateLayerOption="updateLayerOptionHandler"
           />
         </Teleport>
       </div>
@@ -92,16 +92,15 @@
         },
         onDrop: () => {
           console.log('onDrop')
-
           content.parentElement.style.cursor = 'default'
         },
       },
       prepare: (instance) => {
         console.log('prepare')
-
         scaleChange(instance.content.minScale)
       },
       rescale: (instance) => {
+        canvasStageStore.selectedLayerIds.length = 0
         scaleChange(instance.content.currentScale)
       },
     })
@@ -110,15 +109,18 @@
       wzoomModel.instance.prepare()
     })
   }
-  const updatePositionHandler = ({ offsetX, offsetY }) => {
+  const updateLayerOptionHandler = ({ x = 0, y = 0, width = 0, height = 0 }) => {
     canvasStageStore.selectedLayerIds.forEach((id: string) => {
       const layerItemModel = getLayerItemModelById(id, layerList)
       if (layerItemModel) {
-        layerItemModel.x += offsetX / canvasStageStore.scaleRate
-        layerItemModel.y += offsetY / canvasStageStore.scaleRate
+        layerItemModel.x += x / canvasStageStore.scaleRate
+        layerItemModel.y += y / canvasStageStore.scaleRate
+        layerItemModel.width += width / canvasStageStore.scaleRate
+        layerItemModel.height += height / canvasStageStore.scaleRate
       }
     })
   }
+
   function observeEleStyleMutation(el) {
     let observer = new MutationObserver((mutations) => {
       console.log(mutations)

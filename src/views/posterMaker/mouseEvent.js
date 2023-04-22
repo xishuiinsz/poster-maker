@@ -12,14 +12,9 @@ function layerItemMousedown(e, layerItemEl) {
     canvasStageStore.$patch({
       selectedLayerIds: [layerId],
     })
-    // if (!selectedLayerIds.value.includes(layerId)) {
-    //   selectedLayerIds.value.push(layerId)
-    // }
-    // generateRectOperateBox(layerId)
   }
 }
 function backgroundMousedown(e) {
-  console.log('backgroundMousedown')
   canvasStageStore.$patch({
     selectedLayerIds: [],
   })
