@@ -51,7 +51,6 @@ const generateRectTransformBox = (function () {
   }
 })()
 
-export const generateRectSelectionBox = (el) => {}
 export const generateRectOperateBox = (ids) => {
   if (ids.length === 1) {
     const [id] = ids
@@ -60,5 +59,31 @@ export const generateRectOperateBox = (ids) => {
   }
   if (ids.size > 1) {
     generateRectSelectionBox()
+  }
+}
+
+export const getRootItemById = (id, list) => {
+  const hasId = (id, array) => {
+    for (let index = 0; index < array.length; index++) {
+      const el = array[index]
+      if (el.id === id) {
+        return true
+      }
+      if (el.children && el.children.length) {
+        return hasId(id, el.children)
+      }
+    }
+    return false
+  }
+  for (let index = 0; index < list.length; index++) {
+    const element = list[index]
+    if (element.id === id) {
+      return element
+    }
+    if (element.children && element.children.length) {
+      if (hasId(id, element.children)) {
+        return element
+      }
+    }
   }
 }
