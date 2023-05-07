@@ -11,27 +11,16 @@
             :style="stageStyle"
           >
             <template
-              v-for="layer in layerList"
+              v-for="layer in layerList.slice(1)"
               :key="layer.id"
             >
-              <div
-                :data-layer-id="layer.id"
-                :class="getLayerItemClass(layer)"
-                class="layer-item"
-                :style="getLayerStyle(layer)"
-                v-html="layer.html"
-              ></div>
+              <component
+                :layerData="layer"
+                :is="layerCompMap[layer.type]"
+              ></component>
             </template>
           </div>
         </div>
-        <Teleport to="body">
-          <rectZoomBox
-            v-if="canvasStageStore.selectedLayerIds.length"
-            :selectedLayerIds="canvasStageStore.selectedLayerIds"
-            ref="refRectZoomBox"
-            @updateLayerOption="updateLayerOptionHandler"
-          />
-        </Teleport>
       </div>
     </div>
   </div>
@@ -42,8 +31,16 @@
   import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
   import { layerData, wzoomModel } from './var.js'
   import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
-  import rectZoomBox from './rectZoomBox.vue'
+  import layerZoomBox from './layerZoomBox.vue'
   import { registerEvt } from './mouseEvent'
+  import imgLayerComp from './imgLayerComp/index.vue'
+  import svgLayerComp from './svgLayerComp/index.vue'
+  import textLayerComp from './textLayerComp/index.vue'
+  const layerCompMap = {
+    svg: svgLayerComp,
+    text: textLayerComp,
+    img: imgLayerComp,
+  }
   const canvasStageStore = useCanvasStageStore()
   const { scaleChange, scaleRate } = canvasStageStore
   const designWorkbench = ref(null)
@@ -70,10 +67,11 @@
   }
 
   function getLayerStyle(item) {
-    const { width, height, x, y } = item
+    const { width, height, x, y, rotate } = item
     return {
       width: width > 0 ? `${width}px` : width === '100%' ? '100%' : 'fit-content',
       height: height > 0 ? `${height}px` : height === '100%' ? '100%' : 'fit-content',
+      transform: rotate ? `rotate(${rotate}deg)` : `rotate(0deg)`,
       left: `${x}px`,
       top: `${y}px`,
     }
