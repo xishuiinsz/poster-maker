@@ -49,6 +49,6 @@ export const layerData = [
     x: 200,
     y: 300,
     type: 'text',
-    html: '<span contenteditable="true" data-layer-type="text">我是文本我是文本</span>',
+    html: '<span style="user-select:none;" >我是文本我是文本</span>',
   },
 ]

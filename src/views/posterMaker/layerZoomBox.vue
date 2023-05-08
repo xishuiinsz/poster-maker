@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="layer-zoom-box"
-    @mousedown.stop="mousedownEvt"
-  >
+  <div class="layer-zoom-box">
     <span
       class="item-line top-line"
       :style="getTopLineStyle"
@@ -119,6 +116,9 @@
     document.removeEventListener('mousemove', bmpMousemoveEvt, true)
     document.removeEventListener('mouseup', bmpMouseupEvt, true)
   }
+  onMounted(() => {
+    document.addEventListener('mousedown', mousedownEvt, true)
+  })
 </script>
 <style lang="scss" scoped>
   $handlerSize1: 20px;

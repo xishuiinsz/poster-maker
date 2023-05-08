@@ -7,7 +7,6 @@ const canvasStageStore = useCanvasStageStore()
 const { selectedLayerIds } = storeToRefs(canvasStageStore)
 function layerItemMousedown(e, layerItemEl) {
   const { layerId } = layerItemEl.dataset
-  // const layerItemModel = getLayerItemModelById(layerId)
   if (layerId) {
     canvasStageStore.$patch({
       selectedLayerIds: [layerId],
@@ -19,7 +18,7 @@ function backgroundMousedown(e) {
     selectedLayerIds: [],
   })
 }
-export function registerEvt(target) {
+export function registerMouseEvt(target) {
   target.addEventListener('mouseup', (e) => {
     e.stopPropagation()
     e.stopImmediatePropagation()

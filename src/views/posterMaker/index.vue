@@ -11,7 +11,7 @@
             :style="stageStyle"
           >
             <template
-              v-for="layer in layerList.slice(1)"
+              v-for="layer in layerList"
               :key="layer.id"
             >
               <component
@@ -32,11 +32,14 @@
   import { layerData, wzoomModel } from './var.js'
   import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
   import layerZoomBox from './layerZoomBox.vue'
-  import { registerEvt } from './mouseEvent'
+  import { registerMouseEvt } from './mouseEvent'
+  import { registerKeyboardEvt } from './keyboardEvent'
   import imgLayerComp from './imgLayerComp/index.vue'
   import svgLayerComp from './svgLayerComp/index.vue'
   import textLayerComp from './textLayerComp/index.vue'
+  import bgLayerComp from './bgLayerComp/index.vue'
   const layerCompMap = {
+    background: bgLayerComp,
     svg: svgLayerComp,
     text: textLayerComp,
     img: imgLayerComp,
@@ -130,7 +133,8 @@
     if (designWorkbench.value) {
       const drawingCanvas = designWorkbench.value.querySelector('.drawing-canvas-container')
       init(drawingCanvas)
-      registerEvt(designWorkbench.value)
+      registerMouseEvt(designWorkbench.value)
+      registerKeyboardEvt()
     }
   })
 </script>
