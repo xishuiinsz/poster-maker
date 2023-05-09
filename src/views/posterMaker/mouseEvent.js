@@ -1,4 +1,4 @@
-import { watch, computed } from 'vue'
+import { watch, toRaw } from 'vue'
 import { selectedLayersMap } from './var'
 import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
@@ -8,9 +8,19 @@ const { selectedLayerIds } = storeToRefs(canvasStageStore)
 function layerItemMousedown(e, layerItemEl) {
   const { layerId } = layerItemEl.dataset
   if (layerId) {
-    canvasStageStore.$patch({
-      selectedLayerIds: [layerId],
-    })
+    if (e.ctrlKey) {
+      const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+      if (rawSelectedLayerIds.includes(layerId)) {
+        const index = rawSelectedLayerIds.findIndex((id) => id === layerId)
+        canvasStageStore.selectedLayerIds.splice(index, 1)
+      } else {
+        canvasStageStore.selectedLayerIds.push(layerId)
+      }
+    } else {
+      canvasStageStore.$patch({
+        selectedLayerIds: [layerId],
+      })
+    }
   }
 }
 function backgroundMousedown(e) {

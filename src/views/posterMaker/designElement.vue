@@ -48,13 +48,23 @@
       >
         开始裁剪
       </el-button>
+      <el-button
+        @click="layersGroup"
+        size="small"
+        type="primary"
+      >
+        组合
+      </el-button>
     </el-button-group>
   </div>
 </template>
 <script lang="ts" setup>
+  import { toRaw } from 'vue'
   import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
-  import { wzoomModel } from './var.js'
+  import { wzoomModel, layerData } from './var.js'
+  import { getActiveLayers, getCanvasLeftTop } from './utils.js'
   const canvasStageStore = useCanvasStageStore()
+  const { layerList: rawLayerList } = canvasStageStore
   function fitBtnClick() {
     wzoomModel.instance.prepare()
   }
@@ -82,6 +92,56 @@
     this.loadingInstance = this.$loading({
       target: this.$el,
     })
+  }
+
+  function getOffsetOfDirection(elementList: HTMLDivElement[], direction: 'left' | 'right' | 'top' | 'bottom', minMax: 'max' | 'min') {
+    const array = elementList.map((ele: HTMLDivElement) => {
+      const value = ele.getBoundingClientRect()[direction]
+      return value
+    })
+    return Math[minMax](...array)
+  }
+
+  function layersGroup() {
+    const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    const activeLayers = getActiveLayers()
+    if (activeLayers.length > 1) {
+      const left = getOffsetOfDirection(activeLayers, 'left', 'min')
+      const top = getOffsetOfDirection(activeLayers, 'top', 'min')
+      const right = getOffsetOfDirection(activeLayers, 'right', 'max')
+      const bottom = getOffsetOfDirection(activeLayers, 'bottom', 'max')
+      const width = right - left
+      const height = bottom - top
+      const { left: leftCanvas, top: topCanvas } = getCanvasLeftTop()
+      const xGroup = left - leftCanvas
+      const yGroup = top - topCanvas
+      const children = []
+      layerData.forEach((item) => {
+        if (rawSelectedLayerIds.includes(item.id)) {
+          const { x, y, ...rest } = item
+          const data = {
+            x: x - xGroup,
+            y: y - yGroup,
+            ...rest,
+          }
+          children.push(data)
+        }
+      })
+      const groupLayer = {
+        id: '10',
+        type: 'group',
+        x: xGroup,
+        y: yGroup,
+        width,
+        height,
+        children,
+      }
+      rawSelectedLayerIds.forEach((id) => {
+        const index = rawLayerList.findIndex((item) => item.id === id)
+        canvasStageStore.layerList.splice(index, 1)
+        canvasStageStore.layerList.push(groupLayer)
+      })
+    }
   }
 </script>
 <style lang="scss">

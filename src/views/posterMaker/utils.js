@@ -87,3 +87,23 @@ export const getRootItemById = (id, list) => {
     }
   }
 }
+
+export const getActiveLayers = () => {
+  const canvas = document.querySelector('.drawing-canvas')
+  if (canvas) {
+    const activeLayers = Array.from(canvas.children).filter((ele) => ele.classList.contains('is-active') && ele.classList.contains('layer-item'))
+    if (activeLayers.length) {
+      return activeLayers
+    }
+  }
+  return []
+}
+
+export const getCanvasLeftTop = () => {
+  const canvas = document.querySelector('.drawing-canvas')
+  if (canvas) {
+    const { left, top } = canvas.getBoundingClientRect()
+    return { left, top }
+  }
+  return { left: 0, top: 0 }
+}
