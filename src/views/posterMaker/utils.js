@@ -1,4 +1,16 @@
 import { layerItemClass } from './var.js'
+// 获取画布
+export const getDrawingCanvas = (selector = 'drawing-canvas') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
+  const canvas = document.querySelector(className)
+  if (canvas) {
+    return canvas
+  }
+  return null
+}
 export const getAncestorByClass = (target, classAname) => {
   if (target === null || target === document.body) {
     return null
@@ -9,12 +21,15 @@ export const getAncestorByClass = (target, classAname) => {
   }
 }
 export const getLayerItemDomById = (id) => {
-  let instance = null
-  const elementList = document.querySelectorAll(`.${layerItemClass}`)
-  if (elementList) {
-    return Array.from(elementList).find((item) => item.dataset.layerId === id)
+  const canvas = getDrawingCanvas()
+  if (canvas) {
+    const elementList = document.querySelectorAll(`.${layerItemClass}`)
+    if (elementList) {
+      return Array.from(elementList).find((item) => item.dataset.layerId === id)
+    }
   }
-  return instance
+
+  return null
 }
 
 export const getLayerItemModelById = (id, layerList) => {
@@ -89,7 +104,7 @@ export const getRootItemById = (id, list) => {
 }
 
 export const getActiveLayers = () => {
-  const canvas = document.querySelector('.drawing-canvas')
+  const canvas = getDrawingCanvas()
   if (canvas) {
     const activeLayers = Array.from(canvas.children).filter((ele) => ele.classList.contains('is-active') && ele.classList.contains('layer-item'))
     if (activeLayers.length) {
@@ -100,10 +115,18 @@ export const getActiveLayers = () => {
 }
 
 export const getCanvasLeftTop = () => {
-  const canvas = document.querySelector('.drawing-canvas')
+  const canvas = getDrawingCanvas()
   if (canvas) {
     const { left, top } = canvas.getBoundingClientRect()
     return { left, top }
   }
   return { left: 0, top: 0 }
+}
+
+// 基于子元素，获取顶级图层元素
+export const getTopLayerItemEle = (tartet, selector = 'layer-item') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
 }

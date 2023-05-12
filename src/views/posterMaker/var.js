@@ -78,7 +78,7 @@ export const layerData = [
     y: 300,
     rotate: 320,
     type: 'text',
-    html: '<span style="user-select:none;" >我是文本我是文本</span>',
+    html: '<span style="user-select:none;" >我是文本我是文本1</span>',
   },
   {
     id: '5',
@@ -88,6 +88,6 @@ export const layerData = [
     x: 80,
     y: 350,
     type: 'text',
-    html: '<span style="user-select:none;" >我是文本我是文本</span>',
+    html: '<span style="user-select:none;" >我是文本我是文本2</span>',
   },
 ]

@@ -25,7 +25,6 @@
       default: () => {},
     },
   })
-  console.log(props.layerData)
 
   const updateLayerOptionHandler = ({ x = 0, y = 0, width = 0, height = 0 }) => {
     props.layerData.x += x / canvasStageStore.scaleRate

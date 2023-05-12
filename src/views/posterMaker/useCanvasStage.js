@@ -15,7 +15,6 @@ export const useCanvasStageStore = defineStore('canvasStage', {
   getters: {},
   actions: {
     scaleChange(value) {
-      console.log(value)
       this.scaleRate = value
     },
   },

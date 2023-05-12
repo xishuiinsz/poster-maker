@@ -55,6 +55,13 @@
       >
         组合
       </el-button>
+      <el-button
+        @click="layersRemove"
+        size="small"
+        type="primary"
+      >
+        删除
+      </el-button>
     </el-button-group>
   </div>
 </template>
@@ -62,9 +69,10 @@
   import { toRaw } from 'vue'
   import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
   import { wzoomModel, layerData } from './var.js'
-  import { getActiveLayers, getCanvasLeftTop } from './utils.js'
+  import { v4 as uuidv4 } from 'uuid'
+  import { getActiveLayers, getCanvasLeftTop, getLayerItemDomById } from './utils.js'
   const canvasStageStore = useCanvasStageStore()
-  const { layerList: rawLayerList } = canvasStageStore
+  const { layerList, scaleRate } = canvasStageStore
   function fitBtnClick() {
     wzoomModel.instance.prepare()
   }
@@ -101,9 +109,10 @@
     })
     return Math[minMax](...array)
   }
-
+  // 组合
   function layersGroup() {
     const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    const rawLayerList = toRaw(canvasStageStore.layerList)
     const activeLayers = getActiveLayers()
     if (activeLayers.length > 1) {
       const left = getOffsetOfDirection(activeLayers, 'left', 'min')
@@ -116,32 +125,44 @@
       const xGroup = left - leftCanvas
       const yGroup = top - topCanvas
       const children = []
+      const rawScaleRate = toRaw(canvasStageStore.scaleRate)
       layerData.forEach((item) => {
         if (rawSelectedLayerIds.includes(item.id)) {
-          const { x, y, ...rest } = item
+          const { id, x, y, ...rest } = item
+          const { left: layerItemLeft, top: layerItemTop } = getLayerItemDomById(id).getBoundingClientRect()
           const data = {
-            x: x - xGroup,
-            y: y - yGroup,
+            x: (layerItemLeft - left) / rawScaleRate,
+            y: (layerItemTop - top) / rawScaleRate,
             ...rest,
           }
           children.push(data)
         }
       })
       const groupLayer = {
-        id: '10',
+        id: uuidv4(),
         type: 'group',
-        x: xGroup,
-        y: yGroup,
-        width,
-        height,
+        x: xGroup / rawScaleRate,
+        y: yGroup / rawScaleRate,
+        width: width / rawScaleRate,
+        height: height / rawScaleRate,
         children,
       }
       rawSelectedLayerIds.forEach((id) => {
         const index = rawLayerList.findIndex((item) => item.id === id)
         canvasStageStore.layerList.splice(index, 1)
-        canvasStageStore.layerList.push(groupLayer)
       })
+      canvasStageStore.layerList.push(groupLayer)
     }
+  }
+
+  // 删除
+  function layersRemove() {
+    const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    const rawLayerList = toRaw(canvasStageStore.layerList)
+    rawSelectedLayerIds.forEach((id) => {
+      const index = rawLayerList.findIndex((item) => item.id === id)
+      canvasStageStore.layerList.splice(index, 1)
+    })
   }
 </script>
 <style lang="scss">

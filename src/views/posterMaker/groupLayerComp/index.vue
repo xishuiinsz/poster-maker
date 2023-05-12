@@ -50,3 +50,8 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  .layer-group {
+    pointer-events: initial;
+  }
+</style>

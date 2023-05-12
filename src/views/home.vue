@@ -24,7 +24,6 @@
   import { useTagsStore } from '../store/tags'
   import vHeader from '../components/header.vue'
   import vSidebar from '@/views/posterMaker/designElement.vue'
-  import vTags from '../components/tags.vue'
 
   const sidebar = useSidebarStore()
   const tags = useTagsStore()
