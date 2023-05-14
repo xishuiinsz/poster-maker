@@ -1,6 +1,6 @@
 import { watch, toRaw } from 'vue'
 import { selectedLayersMap } from './var'
-import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
+import { getAncestorByClass, getTopLayerItemEle, getDesignWorkbench, getDrawingBoard } from './utils.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 import { storeToRefs } from 'pinia'
 const canvasStageStore = useCanvasStageStore()
@@ -28,6 +28,13 @@ function backgroundMousedown(e) {
     selectedLayerIds: [],
   })
 }
+
+function designWorkbenchMousemoveEvt(e) {
+  console.log(e)
+}
+function designWorkbenchMouseupEvt(e) {
+  console.log(e)
+}
 export function registerMouseEvt(target) {
   target.addEventListener('mouseup', (e) => {
     e.stopPropagation()
@@ -40,13 +47,20 @@ export function registerMouseEvt(target) {
   target.addEventListener('mousedown', (e) => {
     e.stopImmediatePropagation()
     e.stopPropagation()
-    const layerItemEl = getAncestorByClass(e.target, 'layer-item')
+    if (e.target === getDesignWorkbench() || e.target === getDrawingBoard()) {
+      e.target.addEventListener('mousemove', designWorkbenchMousemoveEvt)
+      e.target.addEventListener('mouseup', designWorkbenchMouseupEvt)
+      return
+    }
+    const layerItemEl = getTopLayerItemEle(e.target, 'layer-item')
     if (layerItemEl) {
       if (layerItemEl.classList.contains('layer-background')) {
         backgroundMousedown(e)
       } else {
         layerItemMousedown(e, layerItemEl)
       }
+    } else {
+      console.log('dddd')
     }
   })
 }

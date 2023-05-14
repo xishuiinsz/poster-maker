@@ -11,6 +11,30 @@ export const getDrawingCanvas = (selector = 'drawing-canvas') => {
   }
   return null
 }
+// 获取工作台
+export const getDesignWorkbench = (selector = 'design-workbench-container') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
+  const container = document.querySelector(className)
+  if (container) {
+    return container
+  }
+  return null
+}
+// 获取画板
+export const getDrawingBoard = (selector = 'drawing-board-container') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
+  const container = document.querySelector(className)
+  if (container) {
+    return container
+  }
+  return null
+}
 export const getAncestorByClass = (target, classAname) => {
   if (target === null || target === document.body) {
     return null
@@ -124,9 +148,12 @@ export const getCanvasLeftTop = () => {
 }
 
 // 基于子元素，获取顶级图层元素
-export const getTopLayerItemEle = (tartet, selector = 'layer-item') => {
-  let className = selector
-  if (!selector.startsWith('.')) {
-    className = `.${selector}`
+export const getTopLayerItemEle = (target, selector = 'layer-item', result = null) => {
+  if (target.classList.contains(selector)) {
+    result = target
   }
+  if (target === getDrawingCanvas()) {
+    return result
+  }
+  return getTopLayerItemEle(target.parentElement, selector, result)
 }

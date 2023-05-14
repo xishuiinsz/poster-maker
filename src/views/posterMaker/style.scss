@@ -1,6 +1,5 @@
 .online-design-general-container {
     width: 100%;
-    height: calc(100vh - 84px);
     display: flex;
     flex-direction: column;
 
@@ -8,6 +7,7 @@
         height: 100%;
         width: 100%;
         padding: 80px;
+        box-sizing: border-box;
         background-color: #263445;
 
         .drawing-board-container {
