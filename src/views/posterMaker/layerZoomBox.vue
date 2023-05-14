@@ -31,8 +31,9 @@
 
 <script setup lang="ts">
   import { watch, computed, toRaw, reactive, onMounted } from 'vue'
-  import { getLayerItemDomById } from './utils'
+  import { getLayerItemDomById, getDesignWorkbench } from './utils'
   import { useCanvasStageStore } from './useCanvasStage.js'
+  const designWorkbench = getDesignWorkbench()
   const canvasStageStore = useCanvasStageStore()
   const { scaleRate } = canvasStageStore
   const props = defineProps({
@@ -75,8 +76,8 @@
   const emits = defineEmits(['updateLayerOption'])
 
   const mousedownEvt = () => {
-    document.addEventListener('mousemove', mousemoveEvt, true)
-    document.addEventListener('mouseup', mouseupEvt, true)
+    designWorkbench.addEventListener('mousemove', mousemoveEvt, true)
+    designWorkbench.addEventListener('mouseup', mouseupEvt, true)
   }
   // 鼠标移动事件
   const mousemoveEvt = (e) => {
@@ -84,14 +85,14 @@
   }
   // 鼠标释放事件
   const mouseupEvt = (e) => {
-    document.removeEventListener('mousemove', mousemoveEvt, true)
-    document.removeEventListener('mouseup', mouseupEvt, true)
+    designWorkbench.removeEventListener('mousemove', mousemoveEvt, true)
+    designWorkbench.removeEventListener('mouseup', mouseupEvt, true)
   }
 
   // 右中点鼠标按下事件
   const rmpMousedownEvt = (e) => {
-    document.addEventListener('mousemove', rmpMousemoveEvt, true)
-    document.addEventListener('mouseup', rmpMouseupEvt, true)
+    designWorkbench.addEventListener('mousemove', rmpMousemoveEvt, true)
+    designWorkbench.addEventListener('mouseup', rmpMouseupEvt, true)
   }
   // 右中点鼠标移动事件
   const rmpMousemoveEvt = (e) => {
@@ -99,13 +100,13 @@
   }
   // 右中点鼠标释放事件
   const rmpMouseupEvt = (e) => {
-    document.removeEventListener('mousemove', rmpMousemoveEvt, true)
-    document.removeEventListener('mouseup', rmpMouseupEvt, true)
+    designWorkbench.removeEventListener('mousemove', rmpMousemoveEvt, true)
+    designWorkbench.removeEventListener('mouseup', rmpMouseupEvt, true)
   }
   // 底中点鼠标按下事件
   const bmpMousedownEvt = (e) => {
-    document.addEventListener('mousemove', bmpMousemoveEvt, true)
-    document.addEventListener('mouseup', bmpMouseupEvt, true)
+    designWorkbench.addEventListener('mousemove', bmpMousemoveEvt, true)
+    designWorkbench.addEventListener('mouseup', bmpMouseupEvt, true)
   }
   // 底中点鼠标移动事件
   const bmpMousemoveEvt = (e) => {
@@ -113,11 +114,11 @@
   }
   // 底中点鼠标释放事件
   const bmpMouseupEvt = (e) => {
-    document.removeEventListener('mousemove', bmpMousemoveEvt, true)
-    document.removeEventListener('mouseup', bmpMouseupEvt, true)
+    designWorkbench.removeEventListener('mousemove', bmpMousemoveEvt, true)
+    designWorkbench.removeEventListener('mouseup', bmpMouseupEvt, true)
   }
   onMounted(() => {
-    document.addEventListener('mousedown', mousedownEvt, true)
+    designWorkbench.addEventListener('mousedown', mousedownEvt, true)
   })
 </script>
 <style lang="scss" scoped>

@@ -64,6 +64,21 @@ export const getLayerItemModelById = (id, layerList) => {
   return null
 }
 
+export const updateLayerItemById = (option, layerList) => {
+  const { id, ...rest } = option
+  const layerData = getLayerItemModelById(id, layerList)
+  if (layerData) {
+    Object.assign(layerData, rest)
+  }
+}
+
+export const removeLayerItemModelById = (id, layerList) => {
+  const index = layerList.findIndex((item) => item.id === id)
+  if (index > -1) {
+    layerList.splice(index, 1)
+  }
+}
+
 export const rectTransformBox = (el) => {
   const { x, y, width, height } = el.getBoundingClientRect()
   const div = document.createElement('div')

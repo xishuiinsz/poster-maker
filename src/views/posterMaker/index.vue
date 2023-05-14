@@ -20,7 +20,7 @@
 <script setup lang="ts" name="PosterMaker">
   import { onMounted, reactive, ref, computed, watch } from 'vue'
   import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
-  import { getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils.js'
+  import { getAncestorByClass, getLayerItemModelById, getDesignWorkbench, getDrawingCanvas } from './utils.js'
   import { wzoomModel } from './var.js'
   import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
   import layerZoomBox from './layerZoomBox.vue'
@@ -74,10 +74,12 @@
   }
 
   onMounted(() => {
-    if (designWorkbench.value) {
-      const drawingCanvas = designWorkbench.value.querySelector('.drawing-canvas-container')
-      init(drawingCanvas)
-      registerMouseEvt(designWorkbench.value)
+    const designWorkbench = getDesignWorkbench()
+
+    if (designWorkbench) {
+      const drawingCanvasOuter = getDrawingCanvas().parentElement
+      init(drawingCanvasOuter)
+      registerMouseEvt(designWorkbench)
       registerKeyboardEvt()
     }
   })

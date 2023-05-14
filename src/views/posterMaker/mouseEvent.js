@@ -29,12 +29,12 @@ function backgroundMousedown(e) {
   })
 }
 
-function designWorkbenchMousemoveEvt(e) {
-  console.log(e)
-}
-function designWorkbenchMouseupEvt(e) {
-  console.log(e)
-}
+// function designWorkbenchMousemoveEvt(e) {
+//   console.log(e)
+// }
+// function designWorkbenchMouseupEvt(e) {
+//   console.log(e)
+// }
 export function registerMouseEvt(target) {
   target.addEventListener('mouseup', (e) => {
     e.stopPropagation()
@@ -48,8 +48,8 @@ export function registerMouseEvt(target) {
     e.stopImmediatePropagation()
     e.stopPropagation()
     if (e.target === getDesignWorkbench() || e.target === getDrawingBoard()) {
-      e.target.addEventListener('mousemove', designWorkbenchMousemoveEvt)
-      e.target.addEventListener('mouseup', designWorkbenchMouseupEvt)
+      // e.target.addEventListener('mousemove', designWorkbenchMousemoveEvt)
+      // e.target.addEventListener('mouseup', designWorkbenchMouseupEvt)
       return
     }
     const layerItemEl = getTopLayerItemEle(e.target, 'layer-item')

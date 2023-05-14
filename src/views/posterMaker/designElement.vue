@@ -1,6 +1,6 @@
 <template>
   <div class="design-element">
-    <el-form>
+    <el-form class="layer-toolbar">
       <el-form-item>
         <el-input-number
           v-model="canvasStageStore.scaleRate"
@@ -25,7 +25,13 @@
           >
         </el-button-group>
       </el-form-item>
-
+      <el-form-item label="旋转">
+        <el-slider
+          :min="0"
+          :max="360"
+          v-model="rotateLayer"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button-group>
           <el-upload
@@ -69,11 +75,11 @@
             组合
           </el-button>
           <el-button
-            @click="layersRemove"
+            @click="layersUngroup"
             size="small"
             type="primary"
           >
-            删除
+            解除组合
           </el-button>
         </el-button-group>
       </el-form-item>
@@ -86,19 +92,59 @@
           >
             全选
           </el-button>
+          <el-button
+            @click="layersRemove"
+            size="small"
+            type="primary"
+          >
+            删除
+          </el-button>
         </el-button-group>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script lang="ts" setup>
-  import { toRaw, nextTick } from 'vue'
+  import { ref, toRaw, nextTick, computed } from 'vue'
   import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
   import { wzoomModel, layerData } from './var.js'
   import { v4 as uuidv4 } from 'uuid'
-  import { getActiveLayers, getCanvasLeftTop, getLayerItemDomById } from './utils.js'
+  import {
+    getActiveLayers,
+    getCanvasLeftTop,
+    getLayerItemDomById,
+    getLayerItemModelById,
+    removeLayerItemModelById,
+    updateLayerItemById,
+  } from './utils.js'
   const canvasStageStore = useCanvasStageStore()
   const { layerList, scaleRate } = canvasStageStore
+  const rotateLayer = computed({
+    get() {
+      let rotate = 0
+      const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+      const rawLayerList = toRaw(canvasStageStore.layerList)
+      if (rawSelectedLayerIds.length === 1) {
+        const [id] = rawSelectedLayerIds
+        const layerData = getLayerItemModelById(id, rawLayerList)
+        if (layerData) {
+          if (layerData.rotate) {
+            rotate = layerData.rotate
+          }
+        }
+      }
+      return rotate
+    },
+    set(value) {
+      console.log(value)
+      const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+      if (rawSelectedLayerIds.length === 1) {
+        const [id] = rawSelectedLayerIds
+        const data = { id, rotate: value }
+        updateLayerItemById(data, canvasStageStore.layerList)
+      }
+    },
+  })
   function fitBtnClick() {
     wzoomModel.instance.prepare()
   }
@@ -111,6 +157,16 @@
       instance.zoomUp()
     } else {
       instance.zoomDown()
+    }
+  }
+
+  // rotate 实时变化
+  function rotateInputEvt(rotate: number) {
+    const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    if (rawSelectedLayerIds.length === 1) {
+      const [id] = rawSelectedLayerIds
+      const data = { id, rotate }
+      updateLayerItemById(data, canvasStageStore.layerList)
     }
   }
   function handleSuccess(response) {
@@ -154,8 +210,7 @@
       const rawScaleRate = toRaw(canvasStageStore.scaleRate)
       layerData.forEach((item) => {
         if (rawSelectedLayerIds.includes(item.id)) {
-          const { id, x, y, ...rest } = item
-          const { left: layerItemLeft, top: layerItemTop } = getLayerItemDomById(id).getBoundingClientRect()
+          const { x, y, ...rest } = item
           const data = {
             x: (x * rawScaleRate - xGroup) / rawScaleRate,
             y: (y * rawScaleRate - yGroup) / rawScaleRate,
@@ -185,6 +240,41 @@
     }
   }
 
+  // 解除组合
+  function layersUngroup() {
+    const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    const rawScaleRate = toRaw(canvasStageStore.scaleRate)
+    if (rawSelectedLayerIds.length === 1) {
+      const [id] = rawSelectedLayerIds
+      const rawLayerList = toRaw(canvasStageStore.layerList)
+      const layerData = getLayerItemModelById(id, rawLayerList)
+      const rotateGroup = layerData.rotate || 0
+      if (layerData.type === 'group') {
+        const groupEle = getLayerItemDomById(id)
+        const { left: leftCanvas, top: topCanvas } = getCanvasLeftTop()
+        const { left: leftGroup, top: topGroup } = groupEle.getBoundingClientRect()
+        const children = layerData.children
+        removeLayerItemModelById(id, canvasStageStore.layerList)
+        const layerIds = children.map((item) => item.id)
+        const _children = []
+        children.forEach((child) => {
+          const { id, x, y, rotate = 0, ...rest } = child
+          const _rotate = rotate + rotateGroup >= 360 ? rotate + rotateGroup - 360 : rotate + rotateGroup
+          const layerEle = getLayerItemDomById(id)
+          const { left, top } = layerEle.getBoundingClientRect()
+          const data = {
+            id,
+            x: layerData.x + x,
+            y: layerData.y + y,
+            rotate: _rotate,
+            ...rest,
+          }
+          _children.push(data)
+        })
+        canvasStageStore.layerList.push(..._children)
+      }
+    }
+  }
   // 删除
   function layersRemove() {
     const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
@@ -202,5 +292,16 @@
   .design-element {
     width: 250px;
     background-color: #263445;
+    padding: 0 16px;
+    box-sizing: border-box;
+    .el-form {
+      &.layer-toolbar {
+        .el-form-item {
+          .el-form-item__label {
+            color: #fff;
+          }
+        }
+      }
+    }
   }
 </style>
