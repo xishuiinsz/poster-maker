@@ -1,6 +1,6 @@
 import { on, off, eventClientX, eventClientY, isTouch, transform, transition } from './toolkit'
 import { dragScrollableDefaultOptions } from './default-options'
-
+import { getElementsInContentEditable } from '../utils'
 class DragScrollable {
   /**
    * @param {WZoomViewport} viewport
@@ -55,7 +55,9 @@ class DragScrollable {
   _grabHandler(event) {
     // if touch started (only one finger) or pressed left mouse button
     if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-      event.preventDefault()
+      if (!getElementsInContentEditable()) {
+        event.preventDefault()
+      }
 
       this.isGrab = true
       this.coordinates = { x: eventClientX(event), y: eventClientY(event) }

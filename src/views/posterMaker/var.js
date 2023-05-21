@@ -3,7 +3,6 @@ import { reactive } from 'vue'
 export const minScale = 0.2
 export const maxScale = 4
 export const scaleStep = 0.1
-export const selectedLayersMap = new Map()
 export const selectedLayerIds = reactive([])
 export const layerItemClass = 'layer-item'
 export const wzoomModel = {
@@ -17,7 +16,7 @@ export const layerData = [
     x: 0,
     y: 0,
     type: 'background',
-    html: null,
+    html: `<div style="background-color:pink;height:100%;"></div>`,
   },
   {
     id: '1',
@@ -84,10 +83,10 @@ export const layerData = [
     id: '5',
     width: 'auto',
     height: 'auto',
-    rotate: 30,
+    rotate: 0,
     x: 80,
-    y: 350,
+    y: 400,
     type: 'text',
-    html: '<span style="user-select:none;" >我是文本我是文本2</span>',
+    html: '<span >选区操作测试文本-选区操作测试文本</span>',
   },
 ]

@@ -35,13 +35,13 @@ export const getDrawingBoard = (selector = 'drawing-board-container') => {
   }
   return null
 }
-export const getAncestorByClass = (target, classAname) => {
+export const getAncestorByClass = (target, className) => {
   if (target === null || target === document.body) {
     return null
-  } else if (target.classList.contains(classAname)) {
+  } else if (target.classList.contains(className)) {
     return target
   } else {
-    return getAncestorByClass(target.parentElement, classAname)
+    return getAncestorByClass(target.parentElement, className)
   }
 }
 export const getLayerItemDomById = (id) => {
@@ -171,4 +171,15 @@ export const getTopLayerItemEle = (target, selector = 'layer-item', result = nul
     return result
   }
   return getTopLayerItemEle(target.parentElement, selector, result)
+}
+
+export const getElementsInContentEditable = () => {
+  const drawingCanvas = getDrawingCanvas()
+  if (drawingCanvas) {
+    const ele = drawingCanvas.querySelector('[contenteditable=true]')
+    if (ele) {
+      return true
+    }
+  }
+  return false
 }

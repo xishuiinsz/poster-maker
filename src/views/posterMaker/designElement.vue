@@ -1,5 +1,8 @@
 <template>
-  <div class="design-element">
+  <div
+    class="design-element"
+    @mousedown.prevent
+  >
     <el-form class="layer-toolbar">
       <el-form-item>
         <el-input-number
@@ -22,6 +25,29 @@
             type="primary"
             @click="originBtnClick"
             >原始大小</el-button
+          >
+        </el-button-group>
+      </el-form-item>
+      <el-form-item>
+        <el-button-group>
+          <el-button
+            @click="fontWeigthClick"
+            type="primary"
+            :class="`font-weight-${styleOptions.fontWeight}`"
+          >
+            B</el-button
+          >
+          <el-button
+            @click="fontStyleClick"
+            type="primary"
+            :class="`font-style-${styleOptions.fontStyle}`"
+            >I</el-button
+          >
+          <el-button
+            @click="textDecorationClick"
+            :class="`text-decoration-${styleOptions.textDecoration}`"
+            type="primary"
+            >U</el-button
           >
         </el-button-group>
       </el-form-item>
@@ -105,7 +131,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, toRaw, nextTick, computed } from 'vue'
+  import { ref, toRaw, nextTick, computed, reactive } from 'vue'
   import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
   import { wzoomModel, layerData } from './var.js'
   import { v4 as uuidv4 } from 'uuid'
@@ -145,6 +171,12 @@
       }
     },
   })
+  const styleDefault = {
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    textDecoration: 'none',
+  }
+  const styleOptions = reactive({ ...styleDefault })
   function fitBtnClick() {
     wzoomModel.instance.prepare()
   }
@@ -285,8 +317,121 @@
     })
   }
 
+  function getElementStyles(element: HTMLElement) {
+    const list = ['fontWeight', 'fontStyle', 'textDecoration']
+    list.forEach((el: string) => {
+      if (element.style[el]) {
+        Object.assign(styleOptions, { [el]: element.style[el] })
+      } else {
+        Object.assign(styleOptions, { [el]: styleDefault[el] })
+      }
+    })
+  }
+
+  function echoStyleBasedOnRange(range: Range) {
+    let container = range.commonAncestorContainer as HTMLElement
+    if (container.nodeType === 3) {
+      container = container.parentNode! as HTMLElement
+    }
+    getElementStyles(container)
+  }
+
   // 全选
   function layersSelectAll() {}
+  // 选区变化事件
+  const selectionchangeEvt = (e: Event) => {
+    const selection = document.getSelection()
+    if (selection!.rangeCount) {
+      const range = selection?.getRangeAt(0)
+      if (!range?.collapsed) {
+        console.log(range)
+        echoStyleBasedOnRange(range)
+      }
+    }
+  }
+  function getContainerBasedOnRange(range: Range) {
+    const { startOffset, startContainer, endOffset, endContainer, commonAncestorContainer } = range
+    if (startContainer === endContainer) {
+      if (commonAncestorContainer.nodeType === 1) {
+        if ((commonAncestorContainer as HTMLElement).innerText!.length === endOffset - startOffset) {
+          return commonAncestorContainer
+        }
+      }
+      if (commonAncestorContainer.nodeType === 3) {
+        if (commonAncestorContainer.parentElement!.innerText!.length === endOffset - startOffset) {
+          return commonAncestorContainer.parentElement
+        }
+      }
+    }
+    return null
+  }
+
+  // 加粗
+  function fontWeigthClick() {
+    const selection = document.getSelection()
+    if (selection!.rangeCount) {
+      const range = selection?.getRangeAt(0) as Range
+      if (!range?.collapsed) {
+        const fontWeight = styleOptions.fontWeight === 'normal' ? 'bold' : 'normal'
+        const container = getContainerBasedOnRange(range)
+        if (container) {
+          Object.assign((container as HTMLElement).style, { fontWeight })
+        } else {
+          const textContent = range?.toString() || ''
+          const span = document.createElement('span')
+          span.innerText = textContent
+          Object.assign(span.style, { fontWeight })
+          range?.deleteContents()
+          range?.insertNode(span)
+        }
+      }
+    }
+  }
+  // 斜体
+  function fontStyleClick() {
+    const selection = document.getSelection()
+    if (selection!.rangeCount) {
+      const range = selection?.getRangeAt(0) as Range
+      if (!range?.collapsed) {
+        const fontStyle = styleOptions.fontStyle === 'normal' ? 'italic' : 'normal'
+        const container = getContainerBasedOnRange(range)
+        if (container) {
+          Object.assign((container as HTMLElement).style, { fontStyle })
+        } else {
+          const textContent = range?.toString() || ''
+          const span = document.createElement('span')
+          span.innerText = textContent
+          Object.assign(span.style, { fontStyle })
+          range?.deleteContents()
+          range?.insertNode(span)
+        }
+      }
+    }
+  }
+
+  // 下划线
+  function textDecorationClick() {
+    const selection = document.getSelection()
+    if (selection!.rangeCount) {
+      const range = selection?.getRangeAt(0) as Range
+      if (!range?.collapsed) {
+        const textDecoration = styleOptions.textDecoration === 'none' ? 'underline' : 'none'
+        const container = getContainerBasedOnRange(range)
+        if (container) {
+          Object.assign((container as HTMLElement).style, { textDecoration })
+        } else {
+          const textContent = range?.toString() || ''
+          const span = document.createElement('span')
+          span.innerText = textContent
+          Object.assign(span.style, { textDecoration })
+          range?.deleteContents()
+          range?.insertNode(span)
+        }
+      }
+    }
+  }
+  // 注册选区变化
+  document.addEventListener('selectionchange', selectionchangeEvt, true)
 </script>
 <style lang="scss">
   .design-element {
@@ -302,6 +447,44 @@
           }
         }
       }
+    }
+  }
+  .font-weight-bold {
+    > span {
+      font-weight: bold;
+      color: black;
+    }
+  }
+  .font-weight-normal {
+    > span {
+      font-weight: normal;
+      color: inherit;
+    }
+  }
+  .font-style-italic {
+    > span {
+      font-style: italic;
+      color: black;
+    }
+  }
+
+  .font-style-normal {
+    > span {
+      font-style: normal;
+      color: inherit;
+    }
+  }
+  .text-decoration-underline {
+    > span {
+      text-decoration: underline;
+      color: black;
+    }
+  }
+
+  .text-decoration-none {
+    > span {
+      text-decoration: none;
+      color: inherit;
     }
   }
 </style>

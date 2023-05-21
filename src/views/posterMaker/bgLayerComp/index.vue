@@ -1,11 +1,11 @@
 <template>
   <div
     :class="getLayerItemClass(layerData)"
-    class="layer-item layer-background"
     :style="getLayerStyle(layerData)"
+    v-html="layerData.html"
   ></div>
 </template>
-<script setup lang="ts" name="TextLayerComp">
+<script setup lang="ts" name="BgLayerComp">
   import { useCanvasStageStore, minScale, maxScale } from '../useCanvasStage.js'
   const canvasStageStore = useCanvasStageStore()
   const props = defineProps({

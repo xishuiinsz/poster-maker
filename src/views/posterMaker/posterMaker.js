@@ -1,7 +1,7 @@
 import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
 import { maxScale, minScale, layerList, getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils'
 const wzoomModel = {
-  instance: null
+  instance: null,
 }
 const selectedLayersMap = new Map()
 export default {
@@ -18,15 +18,15 @@ export default {
       value: 2,
       stageSize: {
         width: 800,
-        height: 600
+        height: 600,
       },
       activeLayerList: [],
       layerConfig: {
-        clip: {}
+        clip: {},
       },
       configClip: {
         width: 200,
-        height: 300
+        height: 300,
       },
       scaleRate: 100,
       configRect: {
@@ -36,7 +36,7 @@ export default {
         height: 200,
         stroke: 'green',
         strokeWidth: 2,
-        draggable: true
+        draggable: true,
       },
       isShowClipBox: true,
       layerList,
@@ -49,8 +49,8 @@ export default {
         scaleY: 1,
         width: 0,
         height: 0,
-        centeredScaling: true
-      }
+        centeredScaling: true,
+      },
     }
   },
   computed: {
@@ -58,14 +58,14 @@ export default {
       const { width, height } = this.stageSize
       return {
         width: `${width}px`,
-        height: `${height}px`
+        height: `${height}px`,
       }
-    }
+    },
   },
   methods: {
     getLayerItemClass(layer) {
       let className = `layer-${layer.type}`
-      if (this.activeLayerList.map(item => item.layerId).includes(layer.id)) {
+      if (this.activeLayerList.map((item) => item.layerId).includes(layer.id)) {
         className += ' is-active'
       }
       return className
@@ -76,7 +76,7 @@ export default {
         width: width > 0 ? `${width}px` : 'fit-content',
         height: height > 0 ? `${height}px` : 'fit-content',
         left: `${x}px`,
-        top: `${y}px`
+        top: `${y}px`,
       }
     },
     fitBtnClick() {
@@ -102,7 +102,7 @@ export default {
       if (this.keyCode !== 'Space') {
         const layerId = this.getLayerId(e.target)
         if (layerId) {
-          if (!this.activeLayerList.map(item => item.layerId).includes(layerId)) {
+          if (!this.activeLayerList.map((item) => item.layerId).includes(layerId)) {
             this.activeLayerList = []
             this.activeLayerList.push(layerId)
           }
@@ -120,7 +120,7 @@ export default {
     },
     beforeUpload(file) {
       this.loadingInstance = this.$loading({
-        target: this.$el
+        target: this.$el,
       })
     },
     handleSuccess(response) {
@@ -129,33 +129,14 @@ export default {
       const img = new Image()
       const _this = this
       img.onload = () => {
-        this.imageMainOption.width = img.width
-        this.imageMainOption.height = img.height
-        if (img.width > this.stageSize.width || img.height > this.stageSize.height) {
-          if (img.width / img.height > this.stageSize.width / this.stageSize.height) {
-            this.imageMainOption.scaleX = this.imageMainOption.scaleY = this.stageSize.width / img.width
-            this.imageMainOption.x = 0
-            this.imageMainOption.y = (this.stageSize.height - this.imageMainOption.height * this.imageMainOption.scaleX) / 2
-          } else {
-            this.imageMainOption.scaleX = this.imageMainOption.scaleY = this.stageSize.height / img.height
-            this.imageMainOption.y = 0
-            this.imageMainOption.x = (this.stageSize.width - this.imageMainOption.width * this.imageMainOption.scaleX) / 2
-          }
-          this.scaleRate = this.imageMainOption.scaleX * 100
-        } else {
-          this.imageMainOption.x = (this.stageSize.width - img.width) / 2
-          this.imageMainOption.y = (this.stageSize.height - img.height) / 2
-          this.imageMainOption.width = img.width
-          this.imageMainOption.height = img.height
-        }
-        _this.imageMainOption.image = img
+        console.log(img)
       }
       img.src = file
     },
     resize() {
       this.stageSize = {
         width: 0,
-        height: 0
+        height: 0,
       }
     },
     // 开始裁剪
@@ -166,7 +147,7 @@ export default {
         x,
         y,
         width,
-        height
+        height,
       }
     },
     init() {
@@ -183,43 +164,25 @@ export default {
           },
           onDrop: () => {
             this.$el.querySelector('.drawing-board-container').style.cursor = 'default'
-          }
+          },
         },
-        prepare: instance => {
+        prepare: (instance) => {
           this.min = instance.content.minScale
           this.defaultValue = instance.content.minScale
           this.step = 1 / instance.options.speed
         },
-        rescale: instance => {
+        rescale: (instance) => {
           this.currentScale = instance.content.currentScale
-        }
+        },
       })
 
       window.addEventListener('resize', function () {
         wzoomModel.instance.prepare()
       })
     },
-    textLayerMousedown(e) {
-      const el = e.target
-      el.setAttribute('contenteditable', true)
-      // el.focus()
-      const range = window.getSelection()
-      range.selectAllChildren(el)
-      range.collapseToEnd()
-      el.addEventListener('blur', () => {
-        console.log('blur')
-      })
-    },
-    registerEvt(target) {
-      target.addEventListener('mouseup', e => {
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-      })
-      target.addEventListener('click', e => {
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-      })
-      target.addEventListener('mousedown', e => {
+
+    registerMouseEvt(target) {
+      target.addEventListener('mousedown', (e) => {
         e.stopImmediatePropagation()
         e.stopPropagation()
         const layerItemEl = getAncestorByClass(e.target, 'layer-item')
@@ -235,13 +198,13 @@ export default {
         }
         generateRectOperateBox(selectedLayersMap)
       })
-    }
+    },
   },
   mounted() {
     this.drawingBoardContainer = this.$el.querySelector('.drawing-board-container')
     if (this.drawingBoardContainer) {
       this.init()
-      this.registerEvt(this.drawingBoardContainer)
+      this.registerMouseEvt(this.drawingBoardContainer)
     }
-  }
+  },
 }

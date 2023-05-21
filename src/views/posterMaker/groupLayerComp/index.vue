@@ -7,7 +7,7 @@
   >
     <layerRenderComp :layer-list="layerData.children" />
     <layerZoomBox
-      v-if="canvasStageStore.selectedLayerIds.includes(layerData.id)"
+      :id="layerData.id"
       @updateLayerOption="updateLayerOptionHandler"
     />
   </div>
@@ -53,5 +53,19 @@
 <style lang="scss" scoped>
   .layer-group {
     pointer-events: initial;
+    :deep(.layer-zoom-box) {
+      .line-item,
+      .icon-item {
+        display: none;
+      }
+    }
+    &.is-active {
+      :deep(.layer-zoom-box) {
+        .line-item,
+        .icon-item {
+          display: default;
+        }
+      }
+    }
   }
 </style>

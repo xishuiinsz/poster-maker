@@ -22,7 +22,6 @@
             overflow: hidden;
 
             .drawing-canvas-container {
-                background-color: pink;
                 position: absolute;
 
                 .drawing-canvas {
@@ -37,16 +36,24 @@
                     :deep(.layer-item) {
                         position: absolute;
 
-                        &.is-active {
-                            // outline: 1px dashed lightseagreen;
+                        .layer-zoom-box {
+
+                            .line-item,
+                            .icon-item {
+                                display: none;
+                            }
                         }
 
-                        .online-design-img {
-                            width: 100%;
-                            height: 100%;
-                            user-select: none !important;
-                            pointer-events: none !important;
+                        &.is-active {
+                            >.layer-zoom-box {
+
+                                .line-item,
+                                .icon-item {
+                                    display: initial;
+                                }
+                            }
                         }
+
 
                     }
                 }

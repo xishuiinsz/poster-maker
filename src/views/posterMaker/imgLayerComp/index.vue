@@ -10,7 +10,7 @@
       v-html="layerData.html"
     ></div>
     <layerZoomBox
-      v-if="canvasStageStore.selectedLayerIds.includes(layerData.id)"
+      :id="layerData.id"
       @updateLayerOption="updateLayerOptionHandler"
     />
   </div>
@@ -51,3 +51,11 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  :deep(.online-design-img) {
+    width: 100%;
+    height: 100%;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+</style>

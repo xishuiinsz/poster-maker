@@ -1,10 +1,11 @@
 import { watch, toRaw } from 'vue'
-import { selectedLayersMap } from './var'
 import { getAncestorByClass, getTopLayerItemEle, getDesignWorkbench, getDrawingBoard } from './utils.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 import { storeToRefs } from 'pinia'
 const canvasStageStore = useCanvasStageStore()
 const { selectedLayerIds } = storeToRefs(canvasStageStore)
+
+// 普通图层(除背景图层外)点击事件
 function layerItemMousedown(e, layerItemEl) {
   const { layerId } = layerItemEl.dataset
   if (layerId) {
@@ -23,27 +24,17 @@ function layerItemMousedown(e, layerItemEl) {
     }
   }
 }
+
+// 背景图层点击事件
 function backgroundMousedown(e) {
+  window.getSelection().empty()
   canvasStageStore.$patch({
     selectedLayerIds: [],
   })
 }
 
-// function designWorkbenchMousemoveEvt(e) {
-//   console.log(e)
-// }
-// function designWorkbenchMouseupEvt(e) {
-//   console.log(e)
-// }
+// 注册鼠标事件
 export function registerMouseEvt(target) {
-  target.addEventListener('mouseup', (e) => {
-    e.stopPropagation()
-    e.stopImmediatePropagation()
-  })
-  target.addEventListener('click', (e) => {
-    e.stopPropagation()
-    e.stopImmediatePropagation()
-  })
   target.addEventListener('mousedown', (e) => {
     e.stopImmediatePropagation()
     e.stopPropagation()
@@ -54,13 +45,9 @@ export function registerMouseEvt(target) {
     }
     const layerItemEl = getTopLayerItemEle(e.target, 'layer-item')
     if (layerItemEl) {
-      if (layerItemEl.classList.contains('layer-background')) {
-        backgroundMousedown(e)
-      } else {
-        layerItemMousedown(e, layerItemEl)
-      }
+      layerItemMousedown(e, layerItemEl)
     } else {
-      console.log('dddd')
+      backgroundMousedown(e)
     }
   })
 }

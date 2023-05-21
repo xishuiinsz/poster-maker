@@ -10,7 +10,8 @@
             class="drawing-canvas"
             :style="stageStyle"
           >
-            <layerRenderComp :layerList="canvasStageStore.layerList" />
+            <bgLayerComp :layerData="layerDataBg" />
+            <layerRenderComp :layerList="canvasStageStore.layerList.slice(1)" />
           </div>
         </div>
       </div>
@@ -26,6 +27,7 @@
   import layerZoomBox from './layerZoomBox.vue'
   import { registerMouseEvt } from './mouseEvent'
   import { registerKeyboardEvt } from './keyboardEvent'
+  import bgLayerComp from './bgLayerComp/index.vue'
   import layerRenderComp from './layerRenderComp.vue'
   const canvasStageStore = useCanvasStageStore()
   const { scaleChange, scaleRate } = canvasStageStore
@@ -42,7 +44,13 @@
       height: `${height}px`,
     }
   })
-
+  const layerDataBg = computed(() => {
+    let layerData = {}
+    if (canvasStageStore.layerList.length) {
+      ;[layerData] = canvasStageStore.layerList
+    }
+    return layerData
+  })
   function init(content) {
     wzoomModel.instance = WZoom.create(content, {
       type: 'html',
@@ -55,7 +63,6 @@
           content.parentElement.style.cursor = 'grabbing'
         },
         onDrop: () => {
-          console.log('onDrop')
           content.parentElement.style.cursor = 'default'
         },
       },
@@ -75,7 +82,6 @@
 
   onMounted(() => {
     const designWorkbench = getDesignWorkbench()
-
     if (designWorkbench) {
       const drawingCanvasOuter = getDrawingCanvas().parentElement
       init(drawingCanvasOuter)
