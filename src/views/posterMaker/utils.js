@@ -183,3 +183,10 @@ export const getElementsInContentEditable = () => {
   }
   return false
 }
+
+export const computedRotatedCoordinate = (pointOrigin, pointCenter, deg) => {
+  const angle = (Math.PI / 180) * deg
+  const x = (pointOrigin.x - pointCenter.x) * Math.cos(angle) - (pointOrigin.y - pointCenter.y) * Math.sin(angle) + pointCenter.x
+  const y = (pointOrigin.x - pointCenter.x) * Math.sin(angle) + (pointOrigin.y - pointCenter.y) * Math.cos(angle) + pointCenter.y
+  return { x, y }
+}

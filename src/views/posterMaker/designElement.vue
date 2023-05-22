@@ -282,22 +282,23 @@
       const layerData = getLayerItemModelById(id, rawLayerList)
       const rotateGroup = layerData.rotate || 0
       if (layerData.type === 'group') {
-        const groupEle = getLayerItemDomById(id)
         const { left: leftCanvas, top: topCanvas } = getCanvasLeftTop()
-        const { left: leftGroup, top: topGroup } = groupEle.getBoundingClientRect()
         const children = layerData.children
         removeLayerItemModelById(id, canvasStageStore.layerList)
-        const layerIds = children.map((item) => item.id)
         const _children = []
         children.forEach((child) => {
-          const { id, x, y, rotate = 0, ...rest } = child
-          const _rotate = rotate + rotateGroup >= 360 ? rotate + rotateGroup - 360 : rotate + rotateGroup
+          const { id, x, y, width: _width, height: _height, rotate = 0, ...rest } = child
+          const _rotate = (rotate + rotateGroup) % 360
           const layerEle = getLayerItemDomById(id)
-          const { left, top } = layerEle.getBoundingClientRect()
+          const { left, top, width, height } = layerEle.getBoundingClientRect()
+          const xCenter = left + width / 2
+          const yCenter = top + height / 2
+          const xResult = xCenter - leftCanvas
+          const yResult = yCenter - topCanvas
           const data = {
             id,
-            x: layerData.x + x,
-            y: layerData.y + y,
+            x: (xResult - _width / 2) / rawScaleRate,
+            y: (yResult - _height / 2) / rawScaleRate,
             rotate: _rotate,
             ...rest,
           }
