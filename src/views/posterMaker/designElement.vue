@@ -287,20 +287,22 @@
         removeLayerItemModelById(id, canvasStageStore.layerList)
         const _children = []
         children.forEach((child) => {
-          const { id, x, y, width: _width, height: _height, rotate = 0, ...rest } = child
+          const { id, width: _width, height: _height, rotate = 0, ...rest } = child
           const _rotate = (rotate + rotateGroup) % 360
           const layerEle = getLayerItemDomById(id)
+          const widthElement = parseFloat(getComputedStyle(layerEle).width)
+          const heightElement = parseFloat(getComputedStyle(layerEle).height)
           const { left, top, width, height } = layerEle.getBoundingClientRect()
           const xCenter = left + width / 2
           const yCenter = top + height / 2
           const xResult = xCenter - leftCanvas
           const yResult = yCenter - topCanvas
           const data = {
-            id,
-            x: (xResult - _width / 2) / rawScaleRate,
-            y: (yResult - _height / 2) / rawScaleRate,
-            rotate: _rotate,
             ...rest,
+            id,
+            x: xResult / rawScaleRate - widthElement / 2,
+            y: yResult / rawScaleRate - heightElement / 2,
+            rotate: _rotate,
           }
           _children.push(data)
         })
