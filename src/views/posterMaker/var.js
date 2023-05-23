@@ -26,7 +26,7 @@ export const layerData = [
     y: 100,
     type: 'svg',
     html: `
-      <svg class="online-design-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <svg viewBox="0,0,300,100" class="online-design-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
         <rect width="300" height="100" style="fill:white;stroke-width:1;stroke:rgb(0,0,0)" />
       </svg>
       `,

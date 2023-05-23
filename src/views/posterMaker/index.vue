@@ -1,9 +1,6 @@
 <template>
   <div class="online-design-general-container">
-    <div
-      ref="designWorkbench"
-      class="design-workbench-container"
-    >
+    <div class="design-workbench-container">
       <div class="drawing-board-container">
         <div class="drawing-canvas-container">
           <div
@@ -24,15 +21,12 @@
   import { getAncestorByClass, getLayerItemModelById, getDesignWorkbench, getDrawingCanvas } from './utils.js'
   import { wzoomModel } from './var.js'
   import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
-  import layerZoomBox from './layerZoomBox.vue'
   import { registerMouseEvt } from './mouseEvent'
   import { registerKeyboardEvt } from './keyboardEvent'
   import bgLayerComp from './bgLayerComp/index.vue'
   import layerRenderComp from './layerRenderComp.vue'
   const canvasStageStore = useCanvasStageStore()
   const { scaleChange, scaleRate } = canvasStageStore
-  const designWorkbench = ref(null)
-  const refRectZoomBox = ref(null)
   const stageSize = reactive({
     width: 800,
     height: 600,
@@ -58,14 +52,15 @@
       width: stageSize.width,
       height: stageSize.height,
       zoomOnClick: false,
-      dragScrollableOptions: {
-        onGrab: () => {
-          content.parentElement.style.cursor = 'grabbing'
-        },
-        onDrop: () => {
-          content.parentElement.style.cursor = 'default'
-        },
-      },
+      // dragScrollableOptions: {
+      //   onGrab: () => {
+      //     console.log('ongrab')
+      //     content.parentElement.style.cursor = 'grabbing'
+      //   },
+      //   onDrop: () => {
+      //     content.parentElement.style.cursor = 'default'
+      //   },
+      // },
       prepare: (instance) => {
         scaleChange(instance.content.minScale)
       },
