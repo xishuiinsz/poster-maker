@@ -55,6 +55,7 @@
         <el-slider
           :min="0"
           :max="360"
+          @input="rotateChangeHandler"
           v-model="rotateLayer"
         />
       </el-form-item>
@@ -131,7 +132,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, toRaw, nextTick, computed, reactive } from 'vue'
+  import { ref, toRaw, nextTick, getCurrentInstance, reactive, watch } from 'vue'
   import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
   import { wzoomModel, layerData } from './var.js'
   import { v4 as uuidv4 } from 'uuid'
@@ -143,34 +144,36 @@
     removeLayerItemModelById,
     updateLayerItemById,
   } from './utils.js'
+  const rotateDefault = 0
   const canvasStageStore = useCanvasStageStore()
-  const { layerList, scaleRate } = canvasStageStore
-  const rotateLayer = computed({
-    get() {
-      let rotate = 0
-      const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
-      const rawLayerList = toRaw(canvasStageStore.layerList)
+  const { layerList, scaleRate, selectedLayerIds } = canvasStageStore
+  const rotateLayer = ref<string | number>(rotateDefault)
+  watch(
+    () => canvasStageStore.selectedLayerIds,
+    (newIds, oldIds) => {
+      const rawSelectedLayerIds = toRaw(newIds)
       if (rawSelectedLayerIds.length === 1) {
         const [id] = rawSelectedLayerIds
-        const layerData = getLayerItemModelById(id, rawLayerList)
+        const layerData = getLayerItemModelById(id, layerList)
         if (layerData) {
           if (layerData.rotate) {
-            rotate = layerData.rotate
+            rotateLayer.value = layerData.rotate
+          } else {
+            rotateLayer.value = rotateDefault
           }
         }
       }
-      return rotate
-    },
-    set(value) {
-      console.log(value)
-      const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
-      if (rawSelectedLayerIds.length === 1) {
-        const [id] = rawSelectedLayerIds
-        const data = { id, rotate: value }
-        updateLayerItemById(data, canvasStageStore.layerList)
-      }
-    },
-  })
+    }
+  )
+
+  const rotateChangeHandler = (value: number) => {
+    const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
+    if (rawSelectedLayerIds.length === 1) {
+      const [id] = rawSelectedLayerIds
+      const data = { id, rotate: value }
+      updateLayerItemById(data, canvasStageStore.layerList)
+    }
+  }
   const styleDefault = {
     fontWeight: 'normal',
     fontStyle: 'normal',
