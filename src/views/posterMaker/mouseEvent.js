@@ -31,9 +31,9 @@ function layerItemMousedown(e, layerItemEl) {
   }
 }
 
-function backgroundMousemove(e) {
-  const { left: leftCanvas, top: topCanvas } = getCanvasLeftTop()
-  const canvsContainer = getDrawingCanvas()
+function drawDragSelectionBox(e) {
+  const designWorkbench = getDesignWorkbench()
+  const { left: leftCanvas, top: topCanvas } = designWorkbench.getBoundingClientRect()
   Object.assign(mousePoint, {
     x2: e.x,
     y2: e.y,
@@ -47,15 +47,21 @@ function backgroundMousemove(e) {
   const height = `${offsetHeight}px`
   const left = `${offsetX}px`
   const top = `${offsetY}px`
+  div.classList.add('drag-selection-box')
   Object.assign(div.style, {
     width,
     height,
     left,
     top,
     position: 'absolute',
-    backgroundColor: 'red',
+    backgroundColor: '#6a8ac14f',
   })
-  canvsContainer.appendChild(div)
+  designWorkbench.appendChild(div)
+  return div
+}
+
+function backgroundMousemove(e) {
+  // drawDragSelectionBox(e)
 }
 function backgroundMouseup(e) {
   document.removeEventListener('mousemove', backgroundMousemove)

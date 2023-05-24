@@ -164,6 +164,9 @@ export const getCanvasLeftTop = () => {
 
 // 基于子元素，获取顶级图层元素
 export const getTopLayerItemEle = (target, selector = 'layer-item', result = null) => {
+  if (!target) {
+    return null
+  }
   if (target.classList.contains(selector)) {
     result = target
   }

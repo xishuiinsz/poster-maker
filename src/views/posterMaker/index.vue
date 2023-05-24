@@ -12,6 +12,7 @@
           </div>
         </div>
       </div>
+      <dragSelectionBox />
     </div>
   </div>
 </template>
@@ -25,6 +26,7 @@
   import { registerKeyboardEvt } from './keyboardEvent'
   import bgLayerComp from './bgLayerComp/index.vue'
   import layerRenderComp from './layerRenderComp.vue'
+  import dragSelectionBox from './dragSelectionBox.vue'
   const canvasStageStore = useCanvasStageStore()
   const { scaleChange, scaleRate } = canvasStageStore
   const stageSize = reactive({
