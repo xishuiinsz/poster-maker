@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
   import { computed, onMounted, reactive, toRaw } from 'vue'
-  import { getAncestorByClass, getDesignWorkbench } from './utils'
+  import { getAncestorByClass, getDesignWorkbench, getAllLayerItems } from './utils'
   import { useCanvasStageStore } from './useCanvasStage.js'
   const canvasStageStore = useCanvasStageStore()
   defineOptions({
@@ -21,7 +21,6 @@
     y2: 0,
     leftCanvas: 0,
     topCanvas: 0,
-    rawScaleRate: 1,
     designWorkbench: null,
   }
   const styleDefault = {
@@ -40,17 +39,17 @@
       top: `${top}px`,
     }
   })
-  const mouseleaveDesignWorkbench = (e: MouseEvent) => {
-    console.log('mouseleaveDesignWorkbench')
-    // Object.assign(styleData, styleDefault)
-  }
   // 鼠标移动事件
   const mousemoveEvt = (e: MouseEvent) => {
     Object.assign(cacheData, {
       x2: e.x,
       y2: e.y,
     })
-    const { x1, y1, x2, y2, leftCanvas, topCanvas, rawScaleRate } = cacheData
+    const { x1, y1, x2, y2, leftCanvas, topCanvas } = cacheData
+    if (Math.min(x1, x2) - leftCanvas <= 0 || Math.min(y1, y2) - topCanvas <= 0) {
+      clearEvent()
+      return
+    }
     Object.assign(styleData, {
       left: Math.min(x1, x2) - leftCanvas,
       top: Math.min(y1, y2) - topCanvas,
@@ -58,24 +57,34 @@
       height: Math.abs(y2 - y1),
     })
   }
-  // 鼠标释放事件
-  const mouseupEvt = (e: MouseEvent) => {
-    const designWorkbench = cacheData.designWorkbench as HTMLElement
+  const clearEvent = () => {
     Object.assign(styleData, styleDefault)
     document.removeEventListener('mousemove', mousemoveEvt, true)
     document.removeEventListener('mouseup', mouseupEvt, true)
-    designWorkbench.removeEventListener('mouseleave', mouseleaveDesignWorkbench, true)
+  }
+  // 碰撞检测
+  const collisionChecking = (data) => {
+    const allLayerItems = toRaw(canvasStageStore.layerList).slice(1)
+    console.log(allLayerItems)
+    console.log(data)
+  }
+  // 鼠标释放事件
+  const mouseupEvt = (e: MouseEvent) => {
+    collisionChecking({ ...styleData })
+    clearEvent()
   }
   // 鼠标按下件
   const mousedownEvt = (e: MouseEvent) => {
     if (e.ctrlKey || e.shiftKey) {
       return
     }
+    const designWorkbench: HTMLElement = getDesignWorkbench()
+    const { left: leftCanvas, top: topCanvas } = designWorkbench.getBoundingClientRect()
+    if (e.x - leftCanvas <= 0 || e.y - topCanvas <= 0) {
+      return
+    }
     const layerItemEle = getAncestorByClass(e.target, 'layer-item')
     if (!layerItemEle) {
-      const rawScaleRate = toRaw(canvasStageStore.scaleRate)
-      const designWorkbench: HTMLElement = getDesignWorkbench()
-      const { left: leftCanvas, top: topCanvas } = designWorkbench.getBoundingClientRect()
       Object.assign(cacheData, {
         x1: e.x,
         y1: e.y,
@@ -83,12 +92,10 @@
         y2: e.y,
         leftCanvas,
         topCanvas,
-        rawScaleRate,
         designWorkbench,
       })
       document.addEventListener('mousemove', mousemoveEvt, true)
       document.addEventListener('mouseup', mouseupEvt, true)
-      designWorkbench.addEventListener('mouseleave', mouseleaveDesignWorkbench, true)
     }
   }
   document.addEventListener('mousedown', mousedownEvt, true)

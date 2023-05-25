@@ -193,3 +193,12 @@ export const computedRotatedCoordinate = (pointOrigin, pointCenter, deg) => {
   const y = (pointOrigin.x - pointCenter.x) * Math.sin(angle) + (pointOrigin.y - pointCenter.y) * Math.cos(angle) + pointCenter.y
   return { x, y }
 }
+
+// 获取所有普通图层
+export const getAllLayerItems = () => {
+  const canvasContainer = getDrawingCanvas()
+  if (canvasContainer) {
+    return Array.from(canvasContainer.children).slice(1)
+  }
+  return []
+}
