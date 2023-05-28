@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-
+import { v4 as uuidv4 } from 'uuid'
 export const minScale = 0.2
 export const maxScale = 4
 export const scaleStep = 0.1
@@ -100,5 +100,14 @@ export const layerData = [
         html: '<span >选区操作测试文本</span>',
       },
     ],
+  },
+  {
+    id: '79165b99-164f-43c9-99cb-8728e0087034',
+    width: 'auto',
+    height: 'auto',
+    x: 72,
+    y: 36,
+    type: 'text',
+    html: '<span style="user-select:none;" >你好，《在线海报》欢迎您！</span>',
   },
 ]

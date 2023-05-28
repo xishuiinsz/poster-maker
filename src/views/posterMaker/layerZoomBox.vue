@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
   import { ref, computed, toRaw, reactive, onMounted } from 'vue'
-  import { getAncestorByClass, getDesignWorkbench } from './utils'
+  import { getAncestorByClass, getDesignWorkbench } from './utils/index.js'
   import { useCanvasStageStore } from './useCanvasStage.js'
   const canvasStageStore = useCanvasStageStore()
   const { scaleRate } = canvasStageStore

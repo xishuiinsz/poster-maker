@@ -1,5 +1,5 @@
 import WZoom from './vanilla-js-wheel-zoom/wheel-zoom'
-import { maxScale, minScale, layerList, getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils'
+import { maxScale, minScale, layerList, getAncestorByClass, getLayerItemModelById, generateRectOperateBox } from './utils/index.js'
 const wzoomModel = {
   instance: null,
 }

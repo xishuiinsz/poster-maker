@@ -1,4 +1,4 @@
-import { layerItemClass } from './var.js'
+import { layerItemClass } from '../var.js'
 // 获取画布
 export const getDrawingCanvas = (selector = 'drawing-canvas') => {
   let className = selector
@@ -201,4 +201,9 @@ export const getAllLayerItems = () => {
     return Array.from(canvasContainer.children).slice(1)
   }
   return []
+}
+
+// 生成随机颜色
+export const getRandomColor = function () {
+  return '#' + ('00000' + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
 }

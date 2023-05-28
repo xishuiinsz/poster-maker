@@ -1,5 +1,5 @@
 import { watch, toRaw } from 'vue'
-import { getCanvasLeftTop, getTopLayerItemEle, getDesignWorkbench, getDrawingBoard, getDrawingCanvas } from './utils.js'
+import { getCanvasLeftTop, getTopLayerItemEle, getDesignWorkbench, getDrawingBoard, getDrawingCanvas } from './utils/index.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 import { storeToRefs } from 'pinia'
 const canvasStageStore = useCanvasStageStore()
