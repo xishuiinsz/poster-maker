@@ -22,8 +22,9 @@ export const layerData = [
     id: '1',
     width: 300,
     height: 100,
-    x: 50,
+    x: 350,
     y: 100,
+    rotate: 40,
     type: 'svg',
     html: `
       <svg viewBox="0,0,300,100" class="online-design-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">

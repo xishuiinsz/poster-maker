@@ -208,7 +208,7 @@ function fontSizeChange(value: number) {
 
 // 增加 | 减少 字号
 function fontSizeAdd(num: number) {
-  fontSize.value += num
+  fontSize.value = Number(unref(fontSize)) + num
   setRangeStyle({ fontSize: `${unref(fontSize)}px` })
 }
 
