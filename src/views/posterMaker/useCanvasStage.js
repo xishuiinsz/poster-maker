@@ -14,6 +14,14 @@ export const useCanvasStageStore = defineStore('canvasStage', {
   },
   getters: {},
   actions: {
+    // 更新图层位置
+    updateLayerPositionlById({ id, x, y }) {
+      const [layerData] = this.layerList.filter((item) => item.id === id)
+      if (layerData) {
+        layerData.x += x / this.scaleRate
+        layerData.y += y / this.scaleRate
+      }
+    },
     scaleChange(value) {
       this.scaleRate = value
     },
