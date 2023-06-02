@@ -3,8 +3,7 @@
     :style="getLayerStyle(layerData)">
     <div class="layer-element" :class="layerElementClassName" v-html="layerData.html" @blur.capture="layerElementBlurEvt"
       @mousedown.stop @mousemove.stop @mouseup.stop="layerElementMouseupEvt"></div>
-    <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler"
-      @updateLayerOption="updateLayerOptionHandler" />
+    <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler" />
   </div>
 </template>
 <script setup lang="ts" name="TextLayerComp">
@@ -24,12 +23,6 @@ const layerElementClassName = ref<string>('')
 const propsToLayZoomBox = {
   id: props.layerData.id,
   type: props.layerData.type,
-}
-const updateLayerOptionHandler = ({ x = 0, y = 0, width = 0, height = 0 }) => {
-  props.layerData.x += x / canvasStageStore.scaleRate
-  props.layerData.y += y / canvasStageStore.scaleRate
-  props.layerData.width += width / canvasStageStore.scaleRate
-  props.layerData.height += height / canvasStageStore.scaleRate
 }
 
 function getLayerItemClass(layer) {

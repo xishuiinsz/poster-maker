@@ -14,7 +14,6 @@ import { ref, computed, toRaw, reactive, onMounted } from 'vue'
 import { getAncestorByClass, getDesignWorkbench } from './utils/index.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 const canvasStageStore = useCanvasStageStore()
-console.log(canvasStageStore)
 const { scaleRate, updateLayerPositionlById } = canvasStageStore
 const props = defineProps({
   id: {
