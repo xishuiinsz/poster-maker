@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootEl" class="layer-zoom-box" @mousedown.self.stop="mousedownEvt">
+  <div ref="rootEl" class="layer-zoom-box" :class="computedClassName" @mousedown.self.stop="mousedownEvt">
     <span class="line-item top-line" :style="getTopLineStyle"></span>
     <span class="line-item right-line" :style="getRightLineStyle"></span>
     <span class="line-item bottom-line" :style="getBottomLineStyle"></span>
@@ -31,6 +31,13 @@ const props = defineProps({
   },
 })
 const rootEl = ref<HTMLElement | null>(null)
+const computedClassName = computed(() => {
+  let className = ''
+  if (canvasStageStore.selectedLayerIds.length > 1) {
+    className += 'multi-layers-selected'
+  }
+  return className
+})
 const getTopLineStyle = computed(() => {
   return {
     transform: `scale(1, ${1 / canvasStageStore.scaleRate})`,
@@ -93,6 +100,9 @@ const layerItemSelectHandler = (shiftKeyFlag: boolean) => {
 
 // 选择框鼠标按下事件
 const mousedownEvt = (e: MouseEvent) => {
+  if (e.shiftKey) {
+    e.preventDefault()
+  }
   layerItemSelectHandler(e.shiftKey)
   document.addEventListener('mousemove', mousemoveEvt, true)
   document.addEventListener('mouseup', mouseupEvt, true)

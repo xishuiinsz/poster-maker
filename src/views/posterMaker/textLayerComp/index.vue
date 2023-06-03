@@ -1,7 +1,8 @@
 <template>
   <div :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
     :style="getLayerStyle(layerData)">
-    <div class="layer-element" :class="layerElementClassName" ref="refLayerElement" v-html="layerData.html"></div>
+    <div class="layer-element" :class="layerElementClassName" ref="refLayerElement" v-html="layerData.html"
+      @blur.capture="layerElementBlurEvt" @mousedown.stop @mousemove.stop @mouseup.stop="layerElementMouseupEvt"></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler"
       @rbpResize="rbpResizeHandler" />
   </div>
@@ -92,7 +93,7 @@ function rbpResizeHandler({ x: offsetX, y: offsetY }) {
     }
 
     &.content-editable {
-      :deep(.layer-zoom-box) {
+      :deep(.layer-zoom-box:not(.multi-layers-selected)) {
         pointer-events: none;
 
         .icon-item {
