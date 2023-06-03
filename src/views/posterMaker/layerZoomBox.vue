@@ -109,6 +109,7 @@ const mousedownEvt = (e: MouseEvent) => {
 }
 // 选择框鼠标移动事件
 const mousemoveEvt = (e: MouseEvent) => {
+  e.preventDefault()
   rootEl.value!.style.cursor = 'move'
   const ids = toRaw(canvasStageStore.selectedLayerIds)
   // 支持多图层同时位移
