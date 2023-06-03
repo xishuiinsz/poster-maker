@@ -1,9 +1,9 @@
 <template>
   <div :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
     :style="getLayerStyle(layerData)">
-    <div class="layer-element" :class="layerElementClassName" v-html="layerData.html" @blur.capture="layerElementBlurEvt"
-      @mousedown.stop @mousemove.stop @mouseup.stop="layerElementMouseupEvt"></div>
-    <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler" />
+    <div class="layer-element" :class="layerElementClassName" ref="refLayerElement" v-html="layerData.html"></div>
+    <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler"
+      @rbpResize="rbpResizeHandler" />
   </div>
 </template>
 <script setup lang="ts" name="TextLayerComp">
@@ -12,6 +12,7 @@ import { useCanvasStageStore, minScale, maxScale } from '../useCanvasStage.js'
 import { getAncestorByClass } from '../utils/index.js'
 import layerZoomBox from '../layerZoomBox.vue'
 import { saveSelectionRange } from '../utils/textLayer.js'
+const refLayerElement = ref(null)
 const canvasStageStore = useCanvasStageStore()
 const props = defineProps({
   layerData: {
@@ -65,6 +66,21 @@ function layZoomBoxMouseupHandler(target: HTMLElement) {
     textLayerItemEle.classList.add('content-editable')
   }
 }
+
+function rbpResizeHandler({ x: offsetX, y: offsetY }) {
+  window.getSelection()?.empty()
+  const text = refLayerElement!.value!.firstChild
+  if (offsetX > 0 && offsetY > 0) {
+    let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
+    fontSize += 0.3
+    Object.assign(text.style, { fontSize: `${fontSize}px` })
+  }
+  if (offsetX < 0 && offsetY < 0) {
+    let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
+    fontSize -= 0.3
+    Object.assign(text.style, { fontSize: `${fontSize}px` })
+  }
+}
 </script>
 <style lang="scss" scoped>
 .layer-text {
@@ -89,6 +105,7 @@ function layZoomBoxMouseupHandler(target: HTMLElement) {
   .layer-element {
     user-select: none;
     cursor: default;
+    -webkit-user-modify: read-write-plaintext-only;
   }
 }
 </style>

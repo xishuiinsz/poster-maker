@@ -6,6 +6,7 @@
     <span class="line-item left-line" :style="getLeftLineStyle"></span>
     <span @mousedown.stop="rmpMousedownEvt" :style="getRmpHandlerStyle" class="icon-item rmp"></span>
     <span @mousedown.stop="bmpMousedownEvt" :style="getBmpHandlerStyle" class="icon-item bmp"></span>
+    <span @mousedown.stop="rbpMousedownEvt" :style="getRbpHandlerStyle" class="icon-item rbp"></span>
   </div>
 </template>
 
@@ -14,7 +15,7 @@ import { ref, computed, toRaw, reactive, onMounted } from 'vue'
 import { getAncestorByClass, getDesignWorkbench } from './utils/index.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 const canvasStageStore = useCanvasStageStore()
-const { scaleRate, updateLayerPositionlById } = canvasStageStore
+const { updateLayerPositionlById } = canvasStageStore
 const props = defineProps({
   id: {
     type: String,
@@ -32,35 +33,42 @@ const props = defineProps({
 const rootEl = ref<HTMLElement | null>(null)
 const getTopLineStyle = computed(() => {
   return {
-    transform: `scale(1, ${1 / scaleRate})`,
+    transform: `scale(1, ${1 / canvasStageStore.scaleRate})`,
   }
 })
 const getRightLineStyle = computed(() => {
   return {
-    transform: `scale(${1 / scaleRate}, 1)`,
+    transform: `scale(${1 / canvasStageStore.scaleRate}, 1)`,
   }
 })
 const getBottomLineStyle = computed(() => {
   return {
-    transform: `scale(1, ${1 / scaleRate})`,
+    transform: `scale(1, ${1 / canvasStageStore.scaleRate})`,
   }
 })
 const getLeftLineStyle = computed(() => {
   return {
-    transform: `scale( ${1 / scaleRate}, 1)`,
+    transform: `scale( ${1 / canvasStageStore.scaleRate}, 1)`,
   }
 })
 const getRmpHandlerStyle = computed(() => {
   return {
-    transform: `translate(50%, -50%) scale( ${1 / scaleRate})`,
+    transform: `translate(50%, -50%) scale( ${1 / canvasStageStore.scaleRate})`,
   }
 })
 const getBmpHandlerStyle = computed(() => {
   return {
-    transform: `translate(-50%, 50%) scale( ${1 / scaleRate})`,
+    transform: `translate(-50%, 50%) scale( ${1 / canvasStageStore.scaleRate})`,
   }
 })
-const emits = defineEmits(['updateLayerOption', 'layZoomBoxMouseupEvt'])
+
+// 右下手柄
+const getRbpHandlerStyle = computed(() => {
+  return {
+    transform: `translate(50%, 50%) scale( ${1 / canvasStageStore.scaleRate})`,
+  }
+})
+const emits = defineEmits(['updateLayerOption', 'layZoomBoxMouseupEvt', 'rbpResize'])
 // 图层选择
 const layerItemSelectHandler = (shiftKeyFlag: boolean) => {
   const layerId = props.id
@@ -133,6 +141,20 @@ const bmpMouseupEvt = (e) => {
   document.removeEventListener('mousemove', bmpMousemoveEvt, true)
   document.removeEventListener('mouseup', bmpMouseupEvt, true)
 }
+// 右下点鼠标按下事件
+const rbpMousedownEvt = (e) => {
+  document.addEventListener('mousemove', rbpMousemoveEvt, true)
+  document.addEventListener('mouseup', rbpMouseupEvt, true)
+}
+// 右下点鼠标移动事件
+const rbpMousemoveEvt = (e) => {
+  emits('rbpResize', { x: e.movementX, y: e.movementY })
+}
+// 右下点鼠标释放事件
+const rbpMouseupEvt = (e) => {
+  document.removeEventListener('mousemove', rbpMousemoveEvt, true)
+  document.removeEventListener('mouseup', rbpMouseupEvt, true)
+}
 </script>
 <style lang="scss" scoped>
 $handlerSize1: 20px;
@@ -201,6 +223,14 @@ $handlerSize2: 8px;
       bottom: 0;
       left: 50%;
       cursor: ns-resize;
+    }
+
+    &.rbp {
+      height: $handlerSize1/2;
+      width: $handlerSize1/2;
+      bottom: 0;
+      right: 0;
+      cursor: nwse-resize;
     }
   }
 }
