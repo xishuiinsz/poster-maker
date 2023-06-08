@@ -159,6 +159,7 @@ const rbpMousedownEvt = (e) => {
 }
 // 右下点鼠标移动事件
 const rbpMousemoveEvt = (e) => {
+  window.getSelection()?.empty()
   emits('rbpResize', { x: e.movementX, y: e.movementY })
 }
 // 右下点鼠标释放事件
@@ -237,8 +238,8 @@ $handlerSize2: 8px;
     }
 
     &.rbp {
-      height: $handlerSize1/2;
-      width: $handlerSize1/2;
+      height: calc($handlerSize1/2);
+      width: calc($handlerSize1/2);
       bottom: 0;
       right: 0;
       cursor: nwse-resize;

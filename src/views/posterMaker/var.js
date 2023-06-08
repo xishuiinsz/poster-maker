@@ -72,7 +72,7 @@ export const layerData = [
   },
   {
     id: '4',
-    width: 208.485,
+    width: 220,
     height: 184.879,
     x: 80.0974,
     y: 258.347,
@@ -104,7 +104,7 @@ export const layerData = [
   },
   {
     id: '79165b99-164f-43c9-99cb-8728e0087034',
-    width: 'auto',
+    width: 200,
     height: 'auto',
     x: 72,
     y: 36,

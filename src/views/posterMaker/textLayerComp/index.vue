@@ -69,7 +69,6 @@ function layZoomBoxMouseupHandler(target: HTMLElement) {
 }
 
 function rbpResizeHandler({ x: offsetX, y: offsetY }) {
-  window.getSelection()?.empty()
   const text = refLayerElement!.value!.firstChild
   if (offsetX > 0 && offsetY > 0) {
     let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
@@ -89,8 +88,19 @@ function rbpResizeHandler({ x: offsetX, y: offsetY }) {
 
   &.is-active {
     .layer-element {
+
       outline: none;
     }
+
+
+    :deep(.layer-zoom-box) {
+      .icon-item {
+        &.bmp {
+          display: none !important;
+        }
+      }
+    }
+
 
     &.content-editable {
       :deep(.layer-zoom-box:not(.multi-layers-selected)) {
@@ -104,6 +114,7 @@ function rbpResizeHandler({ x: offsetX, y: offsetY }) {
   }
 
   .layer-element {
+    white-space: pre-wrap;
     user-select: none;
     cursor: default;
     -webkit-user-modify: read-write-plaintext-only;
