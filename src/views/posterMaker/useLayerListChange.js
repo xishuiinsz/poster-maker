@@ -1,5 +1,5 @@
 // 图层数据变化回调收口
-import { onMounted, onUnmounted, watch, toRaw, nextTick } from 'vue'
+import { onMounted, onUnmounted, watch, toRaw } from 'vue'
 export const layerListChangeCb = []
 const tempList = []
 const userLayerListChange = (list) => {
@@ -12,7 +12,11 @@ const userLayerListChange = (list) => {
     tempList.push(option)
   }
   const computedTempList = (list) => {
-    console.log(list)
+    const clonedList = structuredClone(list)
+    layerListChangeCb.length &&
+      layerListChangeCb.forEach((fun) => {
+        typeof fun === 'function' && fun(clonedList)
+      })
   }
 
   const mouseupEvt = (e) => {

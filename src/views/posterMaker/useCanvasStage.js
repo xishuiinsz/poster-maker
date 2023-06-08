@@ -22,6 +22,10 @@ export const useCanvasStageStore = defineStore('canvasStage', {
         layerData.y += y / this.scaleRate
       }
     },
+    // 整体更新图层
+    updateOverallLayer(list) {
+      this.layerList = list
+    },
     scaleChange(value) {
       this.scaleRate = value
     },

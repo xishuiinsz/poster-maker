@@ -103,6 +103,9 @@
           </el-button>
         </el-button-group>
       </el-form-item>
+      <el-form-item>
+        <undoAndRedo />
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -122,6 +125,7 @@ import {
   getRandomColor
 } from './utils/index.js'
 import { restoreSelectionRange } from './utils/textLayer.js'
+import undoAndRedo from './undoAndRedo.vue';
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
 const { layerList, scaleRate, selectedLayerIds } = canvasStageStore
