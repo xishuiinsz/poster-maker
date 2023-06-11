@@ -15,7 +15,7 @@ import { ref, computed, toRaw, reactive, onMounted } from 'vue'
 import { getAncestorByClass, getDesignWorkbench } from './utils/index.js'
 import { useCanvasStageStore } from './useCanvasStage.js'
 const canvasStageStore = useCanvasStageStore()
-const { updateLayerPositionlById } = canvasStageStore
+const { updateLayerPositionById } = canvasStageStore
 const props = defineProps({
   id: {
     type: String,
@@ -113,7 +113,7 @@ const mousemoveEvt = (e: MouseEvent) => {
   rootEl.value!.style.cursor = 'move'
   const ids = toRaw(canvasStageStore.selectedLayerIds)
   // 支持多图层同时位移
-  ids.forEach((id: string) => updateLayerPositionlById({ id, x: e.movementX, y: e.movementY }))
+  ids.forEach((id: string) => updateLayerPositionById({ id, x: e.movementX, y: e.movementY }))
 }
 
 // 选择框鼠标释放事件

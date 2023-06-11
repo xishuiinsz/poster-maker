@@ -8,7 +8,7 @@
         </el-button>
     </el-button-group>
 </template>
-<script setup lang="ts">
+<script setup>
 import { onMounted, ref, reactive, computed } from 'vue'
 import {
     ArrowLeft,
@@ -17,29 +17,41 @@ import {
     Edit,
     Share,
 } from '@element-plus/icons-vue'
-import { layerListChangeCb } from './useLayerListChange.js'
-
+import { layerListChangeCb } from '../useLayerListChange.js'
+import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
+const canvasStageStore = useCanvasStageStore()
+const { updateOverallLayer } = canvasStageStore
 const currentIndex = ref(0)
 const recordList = reactive([])
 const disabledPreStep = computed(() => {
     let flag = true
-    if (recordList[currentIndex.value]) {
+    if (recordList[currentIndex.value - 1]) {
         flag = false
     }
     return flag
 })
-const disabledNextStep = ref(true)
+const disabledNextStep = computed(() => {
+    let flag = true
+    if (recordList[currentIndex.value + 1]) {
+        flag = false
+    }
+    return flag
+})
+
 // 上一步
 const preStep = () => {
-    console.log('上一步')
+    currentIndex.value = currentIndex.value - 1
+    const list = recordList[currentIndex.value]
+    updateOverallLayer(list)
 }
 // 下一步
 const nextStep = () => {
     console.log('下一步')
 }
 // 改变时回调
-const changeCb = (list) => {
-    recordList.push(list)
+const changeCb = (newList) => {
+    recordList.push(newList)
+    currentIndex.value++
 }
 onMounted(() => {
     const index = layerListChangeCb.findIndex(fun => fun === changeCb)

@@ -1,56 +1,37 @@
 // 图层数据变化回调收口
-import { onMounted, onUnmounted, watch, toRaw } from 'vue'
+import { onMounted, onUnmounted, watch, toRaw, nextTick } from 'vue'
 export const layerListChangeCb = []
 const tempList = []
 const userLayerListChange = (list) => {
   const mousedownEvt = (e) => {
     tempList.length = 0
-    const option = {
-      t: Date.now(),
-      v: 'mousedown',
-    }
-    tempList.push(option)
-  }
-  const computedTempList = (list) => {
-    const clonedList = structuredClone(list)
-    layerListChangeCb.length &&
-      layerListChangeCb.forEach((fun) => {
-        typeof fun === 'function' && fun(clonedList)
-      })
   }
 
   const mouseupEvt = (e) => {
-    if (tempList.length > 1) {
-      const lastItem = tempList.at(-1)
-      computedTempList(lastItem.v)
-    } else {
-      const option = {
-        t: Date.now(),
-        v: 'mouseup',
+    setTimeout(() => {
+      if (tempList.length) {
+        const lastItem = tempList.at(-1)
+        computedTempList(lastItem)
       }
-      tempList.push(option)
-    }
+    })
   }
+
+  const computedTempList = (newList) => {
+    const clonedNewList = structuredClone(newList)
+    layerListChangeCb.length &&
+      layerListChangeCb.forEach((fun) => {
+        typeof fun === 'function' && fun(clonedNewList)
+      })
+  }
+
   onMounted(() => {
     watch(
       list,
       (newList, oldList) => {
-        const clonedLayerList = toRaw(newList)
-        if (tempList.length === 2) {
-          const [firstItem, secondItem] = tempList
-          if ((firstItem.v = 'mousedown' && secondItem.v === 'mouseup')) {
-            computedTempList(clonedLayerList)
-            tempList.length = 0
-          }
-        } else {
-          const option = {
-            t: Date.now(),
-            v: clonedLayerList,
-          }
-          tempList.push(option)
-        }
+        const rawNewLayerList = toRaw(newList)
+        tempList.push(rawNewLayerList)
       },
-      { deep: true }
+      { deep: true, flush: 'post' }
     )
     document.addEventListener('mousedown', mousedownEvt, true)
     document.addEventListener('mouseup', mouseupEvt, true)

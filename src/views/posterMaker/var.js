@@ -16,6 +16,7 @@ export const layerData = [
     x: 0,
     y: 0,
     type: 'background',
+    name: '我的样品作品1',
     html: `<div style="background-color:pink;height:100%;"></div>`,
   },
   {
@@ -26,6 +27,7 @@ export const layerData = [
     y: 100,
     rotate: 40,
     type: 'svg',
+    name: 'svg图层',
     html: `
       <svg viewBox="0,0,300,100" class="online-design-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
         <rect width="300" height="100" style="fill:white;stroke-width:1;stroke:rgb(0,0,0)" />
@@ -39,6 +41,7 @@ export const layerData = [
     x: 540,
     y: 50,
     type: 'group',
+    name: '组合文字图层1',
     children: [
       {
         id: '14',
@@ -67,6 +70,7 @@ export const layerData = [
     x: 500,
     y: 300,
     type: 'img',
+    name: '百度图片图层1',
     rotate: 45,
     html: '<img class="online-design-img" src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png"  />',
   },
@@ -78,6 +82,7 @@ export const layerData = [
     y: 258.347,
     rotate: 32,
     type: 'group',
+    name: '组合文字图层2',
     children: [
       {
         id: '41',
@@ -109,6 +114,7 @@ export const layerData = [
     x: 72,
     y: 36,
     type: 'text',
+    name: '文字图层2',
     html: '<span style="user-select:none;" >你好，《在线海报》欢迎您！</span>',
   },
 ]

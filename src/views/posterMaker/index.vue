@@ -25,10 +25,10 @@ import bgLayerComp from './bgLayerComp/index.vue'
 import layerRenderComp from './layerRenderComp.vue'
 import dragSelectionBox from './dragSelectionBox/dragSelectionBox.vue'
 import userLayerListChange from './useLayerListChange.js'
-
+import axios from 'axios'
 const canvasStageStore = useCanvasStageStore()
 userLayerListChange(canvasStageStore.layerList)
-const { scaleChange, scaleRate } = canvasStageStore
+const { scaleChange, updateOverallLayer } = canvasStageStore
 const stageSize = reactive({
   width: 800,
   height: 600,
@@ -77,7 +77,19 @@ function init(content) {
   })
 }
 
-onMounted(() => {
+const fetchLayerList = async () => {
+  const resp = await axios.get('./template1.json')
+  if (resp?.data) {
+    return resp.data
+  }
+  return []
+}
+
+onMounted(async () => {
+  const list = await fetchLayerList()
+  if (list.length) {
+    updateOverallLayer(list)
+  }
   const designWorkbench = getDesignWorkbench()
   if (designWorkbench) {
     const drawingCanvasOuter = getDrawingCanvas().parentElement
