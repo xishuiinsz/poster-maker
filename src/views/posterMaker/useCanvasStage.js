@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { toRaw } from 'vue'
 export const scaleStep = 0.1
 export const minScale = 0.2
 export const maxScale = 4
@@ -16,6 +17,13 @@ export const useCanvasStageStore = defineStore('canvasStage', {
     // 更新图层数据，基于ID
     updateLayerDataById({ id, ...rest }) {
       const [layerData] = this.layerList.filter((item) => item.id === id)
+      if (layerData) {
+        Object.assign(layerData, rest)
+      }
+    },
+    // 静默更新图层数据，基于ID
+    silentUpdateLayerDataById({ id, ...rest }) {
+      const [layerData] = toRaw(this.layerList).filter((item) => item.id === id)
       if (layerData) {
         Object.assign(layerData, rest)
       }

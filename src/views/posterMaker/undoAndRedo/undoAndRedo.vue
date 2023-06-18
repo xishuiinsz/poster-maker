@@ -1,7 +1,8 @@
 <template>
     <el-button-group>
-        <el-button :disabled="disabledPreStep" @click="preStep" type="primary" :icon="ArrowLeft">上一步</el-button>
-        <el-button :disabled="disabledNextStep" @click="nextStep" type="primary">
+        <el-button class="step-item-btn pre-step-btn" :disabled="disabledPreStep" @click="preStep" type="primary"
+            :icon="ArrowLeft">上一步</el-button>
+        <el-button class="step-item-btn next-step-btn" :disabled="disabledNextStep" @click="nextStep" type="primary">
             下一步<el-icon class="el-icon--right">
                 <ArrowRight />
             </el-icon>
@@ -9,7 +10,7 @@
     </el-button-group>
 </template>
 <script setup>
-import { onMounted, ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, toRaw, onMounted, onUnmounted } from 'vue'
 import {
     ArrowLeft,
     ArrowRight,
@@ -17,12 +18,17 @@ import {
     Edit,
     Share,
 } from '@element-plus/icons-vue'
-import { layerListChangeCb } from '../useLayerListChange.js'
+import { layerListChangeCb, registerChangeCb, unregisterChangeCb } from '../useLayerListChange.js'
 import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
 const canvasStageStore = useCanvasStageStore()
-const { updateOverallLayer } = canvasStageStore
+const { updateOverallLayer, layerList } = canvasStageStore
+const clonedRawLayerList = structuredClone(toRaw(layerList))
 const currentIndex = ref(0)
-const recordList = reactive([])
+const recordList = reactive([clonedRawLayerList])
+const cacheData = {
+    flagRecord: true
+}
+// 上一步 是否禁用
 const disabledPreStep = computed(() => {
     let flag = true
     if (recordList[currentIndex.value - 1]) {
@@ -30,6 +36,8 @@ const disabledPreStep = computed(() => {
     }
     return flag
 })
+
+// 下一步 是否禁用
 const disabledNextStep = computed(() => {
     let flag = true
     if (recordList[currentIndex.value + 1]) {
@@ -38,27 +46,36 @@ const disabledNextStep = computed(() => {
     return flag
 })
 
-// 上一步
+// 上一步 点击事件
 const preStep = () => {
+    Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value - 1
     const list = recordList[currentIndex.value]
     updateOverallLayer(list)
+
 }
-// 下一步
+// 下一步 点击事件
 const nextStep = () => {
-    console.log('下一步')
+    Object.assign(cacheData, { flagRecord: false })
+    currentIndex.value = currentIndex.value + 1
+    const list = recordList[currentIndex.value]
+    updateOverallLayer(list)
 }
 // 改变时回调
 const changeCb = (newList) => {
-    recordList.push(newList)
-    currentIndex.value++
-}
-onMounted(() => {
-    const index = layerListChangeCb.findIndex(fun => fun === changeCb)
-    if (index > -1) {
-        layerListChangeCb.splice(index, 1)
-    } else {
-        layerListChangeCb.push(changeCb)
+    if (cacheData.flagRecord) {
+        recordList.push(newList)
+        currentIndex.value++
     }
+    Object.assign(cacheData, { flagRecord: true })
+}
+
+onMounted(() => {
+    // 注册图层数据change回调
+    registerChangeCb(changeCb)
+})
+onUnmounted(() => {
+    // 反注册图层数据change回调
+    unregisterChangeCb(changeCb)
 })
 </script>
