@@ -1,5 +1,5 @@
 // 图层数据变化回调收口
-import { onMounted, onUnmounted, watch, toRaw } from 'vue'
+import { onUnmounted, watch, toRaw } from 'vue'
 import { getAncestorByClass } from './utils/index.js'
 const cacheData = {
   flagMouseDown: false,
@@ -55,7 +55,7 @@ const userLayerListChange = (list) => {
         tempList.push(rawNewLayerList)
       }
     },
-    { deep: true, flush: 'pre' }
+    { deep: true, flush: 'post' }
   )
   document.addEventListener('mousedown', mousedownEvt, true)
   document.addEventListener('mouseup', mouseupEvt, true)

@@ -24,7 +24,7 @@ const canvasStageStore = useCanvasStageStore()
 const { updateOverallLayer, layerList } = canvasStageStore
 const clonedRawLayerList = structuredClone(toRaw(layerList))
 const currentIndex = ref(0)
-const recordList = reactive([clonedRawLayerList])
+const recordList = [clonedRawLayerList]
 const cacheData = {
     flagRecord: true
 }
@@ -51,19 +51,19 @@ const preStep = () => {
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value - 1
     const list = recordList[currentIndex.value]
-    updateOverallLayer(list)
-
+    updateOverallLayer(structuredClone(list))
 }
 // 下一步 点击事件
 const nextStep = () => {
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value + 1
     const list = recordList[currentIndex.value]
-    updateOverallLayer(list)
+    updateOverallLayer(structuredClone(list))
 }
-// 改变时回调
+// 改变时执行回调
 const changeCb = (newList) => {
     if (cacheData.flagRecord) {
+        recordList.splice(currentIndex.value + 1)
         recordList.push(newList)
         currentIndex.value++
     }

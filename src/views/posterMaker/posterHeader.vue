@@ -20,7 +20,7 @@ import { reactive, onMounted, toRaw } from 'vue'
 import undoAndRedo from './undoAndRedo/undoAndRedo.vue';
 import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
 const canvasStageStore = useCanvasStageStore()
-const { layerList, updateLayerDataById } = canvasStageStore
+const { layerList, silentUpdateLayerDataById } = canvasStageStore
 const [modelData] = toRaw(layerList)
 defineOptions({
     name: 'PosterHeader'
@@ -34,6 +34,6 @@ const posterTemplate = reactive({
 // 作品名称change事件
 const templateNameChange = () => {
     const name = toRaw(posterTemplate.name)
-    updateLayerDataById({ id: modelData.id, name })
+    silentUpdateLayerDataById({ id: modelData.id, name })
 }
 </script>
