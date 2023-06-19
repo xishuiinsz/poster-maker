@@ -45,5 +45,17 @@ export const useCanvasStageStore = defineStore('canvasStage', {
     scaleChange(value) {
       this.scaleRate = value
     },
+    // 清空所选图层
+    clearSelectedLayers() {
+      this.selectedLayerIds.length = 0
+    },
+    // 全选图层
+    selectAllLayers() {
+      this.selectedLayerIds.length = 0
+      const ids = toRaw(this.layerList)
+        .slice(1)
+        .map((item) => item.id)
+      this.selectedLayerIds.push(...ids)
+    },
   },
 })

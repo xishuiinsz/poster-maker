@@ -20,15 +20,18 @@ import { getAncestorByClass, getLayerItemModelById, getDesignWorkbench, getDrawi
 import { wzoomModel } from './var.js'
 import { useCanvasStageStore, minScale, maxScale } from './useCanvasStage.js'
 import { registerMouseEvt } from './mouseEvent'
-import { registerKeyboardEvt } from './keyboardEvent'
+import { regKeyupCb } from './useKeyboardEvent.js'
 import bgLayerComp from './bgLayerComp/index.vue'
 import layerRenderComp from './layerRenderComp.vue'
 import dragSelectionBox from './dragSelectionBox/dragSelectionBox.vue'
 import userLayerListChange from './useLayerListChange.js'
+import useKeyboardEvent from './useKeyboardEvent.js'
 import axios from 'axios'
 const canvasStageStore = useCanvasStageStore()
 userLayerListChange(canvasStageStore.layerList)
-const { scaleChange, updateOverallLayer } = canvasStageStore
+// 全局注册keyboard事件
+useKeyboardEvent()
+const { scaleChange, updateOverallLayer, selectAllLayers } = canvasStageStore
 const stageSize = reactive({
   width: 800,
   height: 600,
@@ -85,6 +88,15 @@ const fetchLayerList = async () => {
   return []
 }
 
+const ctrlAKeyEvt = (e) => {
+  if (e.target.hasAttribute('contenteditable') || e.target instanceof HTMLInputElement) {
+    return
+  }
+  Object.assign(e.target.style, { userSelect: 'none' })
+  e.preventDefault()
+  selectAllLayers()
+}
+
 onMounted(async () => {
   const list = await fetchLayerList()
   if (list.length) {
@@ -95,8 +107,9 @@ onMounted(async () => {
     const drawingCanvasOuter = getDrawingCanvas().parentElement
     init(drawingCanvasOuter)
     registerMouseEvt(designWorkbench)
-    registerKeyboardEvt()
+
   }
+  regKeyupCb('ctrl_a', ctrlAKeyEvt)
 })
 </script>
 <style src="./style.scss" lang="scss" scoped></style>

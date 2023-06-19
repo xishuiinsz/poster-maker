@@ -20,8 +20,9 @@ import {
 } from '@element-plus/icons-vue'
 import { layerListChangeCb, registerChangeCb, unregisterChangeCb } from '../useLayerListChange.js'
 import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
+import { regKeyupCb } from '../useKeyboardEvent.js'
 const canvasStageStore = useCanvasStageStore()
-const { updateOverallLayer, layerList } = canvasStageStore
+const { updateOverallLayer, layerList, clearSelectedLayers } = canvasStageStore
 const clonedRawLayerList = structuredClone(toRaw(layerList))
 const currentIndex = ref(0)
 const recordList = [clonedRawLayerList]
@@ -48,6 +49,7 @@ const disabledNextStep = computed(() => {
 
 // 上一步 点击事件
 const preStep = () => {
+    clearSelectedLayers()
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value - 1
     const list = recordList[currentIndex.value]
@@ -55,6 +57,7 @@ const preStep = () => {
 }
 // 下一步 点击事件
 const nextStep = () => {
+    clearSelectedLayers()
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value + 1
     const list = recordList[currentIndex.value]
@@ -73,9 +76,17 @@ const changeCb = (newList) => {
 onMounted(() => {
     // 注册图层数据change回调
     registerChangeCb(changeCb)
+    // 注册ctrl+z键盘事件
+    regKeyupCb('ctrl_z', preStep)
+    // 注册ctrl+z键盘事件
+    regKeyupCb('ctrl_y', nextStep)
+
 })
 onUnmounted(() => {
     // 反注册图层数据change回调
     unregisterChangeCb(changeCb)
+    // 注册ctrl+z键盘事件
+    unregKeyupCb('ctrl_z')
+    unregKeyupCb('ctrl_y')
 })
 </script>
