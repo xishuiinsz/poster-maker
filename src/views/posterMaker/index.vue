@@ -92,7 +92,6 @@ const ctrlAKeyEvt = (e) => {
   if (e.target.hasAttribute('contenteditable') || e.target instanceof HTMLInputElement) {
     return
   }
-  Object.assign(e.target.style, { userSelect: 'none' })
   e.preventDefault()
   selectAllLayers()
 }

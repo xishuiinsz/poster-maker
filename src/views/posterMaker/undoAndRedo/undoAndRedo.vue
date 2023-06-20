@@ -29,6 +29,7 @@ const recordList = [clonedRawLayerList]
 const cacheData = {
     flagRecord: true
 }
+const maxSteps = 100
 // 上一步 是否禁用
 const disabledPreStep = computed(() => {
     let flag = true
@@ -68,7 +69,12 @@ const changeCb = (newList) => {
     if (cacheData.flagRecord) {
         recordList.splice(currentIndex.value + 1)
         recordList.push(newList)
-        currentIndex.value++
+        if (recordList.length > maxSteps) {
+            recordList.shift()
+        } else {
+            currentIndex.value++
+        }
+
     }
     Object.assign(cacheData, { flagRecord: true })
 }
