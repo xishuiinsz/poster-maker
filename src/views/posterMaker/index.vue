@@ -27,6 +27,7 @@ import dragSelectionBox from './dragSelectionBox/dragSelectionBox.vue'
 import userLayerListChange from './useLayerListChange.js'
 import useKeyboardEvent from './useKeyboardEvent.js'
 import axios from 'axios'
+import { ElLoading } from 'element-plus'
 const canvasStageStore = useCanvasStageStore()
 userLayerListChange(canvasStageStore.layerList)
 // 全局注册keyboard事件
@@ -36,19 +37,20 @@ const stageSize = reactive({
   width: 800,
   height: 600,
 })
+
+const layerDataBg = computed(() => {
+  if (canvasStageStore.layerList.length) {
+    const [layerData] = canvasStageStore.layerList
+    return layerData
+  }
+  return {}
+})
 const stageStyle = computed(() => {
-  const { width, height } = stageSize
+  const { width = 800, height = 600 } = layerDataBg
   return {
     width: `${width}px`,
     height: `${height}px`,
   }
-})
-const layerDataBg = computed(() => {
-  let layerData = {}
-  if (canvasStageStore.layerList.length) {
-    ;[layerData] = canvasStageStore.layerList
-  }
-  return layerData
 })
 function init(content) {
   wzoomModel.instance = WZoom.create(content, {
@@ -81,7 +83,10 @@ function init(content) {
 }
 
 const fetchLayerList = async () => {
+  const designWorkbench = getDesignWorkbench()
+  const loadingInstance = ElLoading.service({ target: designWorkbench })
   const resp = await axios.get('./template1.json')
+  loadingInstance.close()
   if (resp?.data) {
     return resp.data
   }

@@ -119,13 +119,12 @@ import {
   getLayerItemDomById,
   getLayerItemModelById,
   removeLayerItemModelById,
-  updateLayerItemById,
   getRandomColor
 } from './utils/index.js'
 import { restoreSelectionRange } from './utils/textLayer.js'
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
-const { layerList, scaleRate, selectedLayerIds } = canvasStageStore
+const { layerList, updateLayerDataById, selectedLayerIds } = canvasStageStore
 const rotateLayer = ref<string | number>(rotateDefault)
 const fontSize = ref<number>(14)
 const fontFamily = ref<string>('microsoft yahei')
@@ -153,7 +152,7 @@ const rotateChangeHandler = (value: number) => {
   if (rawSelectedLayerIds.length === 1) {
     const [id] = rawSelectedLayerIds
     const data = { id, rotate: value }
-    updateLayerItemById(data, canvasStageStore.layerList)
+    updateLayerDataById(data)
   }
 }
 const styleDefault = {
@@ -213,15 +212,6 @@ function fontSizeAdd(num: number) {
   setRangeStyle({ fontSize: `${unref(fontSize)}px` })
 }
 
-// rotate 实时变化
-function rotateInputEvt(rotate: number) {
-  const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
-  if (rawSelectedLayerIds.length === 1) {
-    const [id] = rawSelectedLayerIds
-    const data = { id, rotate }
-    updateLayerItemById(data, canvasStageStore.layerList)
-  }
-}
 function handleSuccess(response) {
   console.log(response)
   const { file } = response.files

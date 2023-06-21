@@ -20,7 +20,7 @@ import {
 } from '@element-plus/icons-vue'
 import { layerListChangeCb, registerChangeCb, unregisterChangeCb } from '../useLayerListChange.js'
 import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
-import { regKeyupCb } from '../useKeyboardEvent.js'
+import { regKeyupCb, unregKeyupCb } from '../useKeyboardEvent.js'
 const canvasStageStore = useCanvasStageStore()
 const { updateOverallLayer, layerList, clearSelectedLayers } = canvasStageStore
 const clonedRawLayerList = structuredClone(toRaw(layerList))

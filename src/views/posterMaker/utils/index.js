@@ -1,16 +1,8 @@
-import { layerItemClass } from '../var.js'
-// 获取画布
-export const getDrawingCanvas = (selector = 'drawing-canvas') => {
-  let className = selector
-  if (!selector.startsWith('.')) {
-    className = `.${selector}`
-  }
-  const canvas = document.querySelector(className)
-  if (canvas) {
-    return canvas
-  }
-  return null
-}
+import { layerItemClass, wzoomModel } from '../var.js'
+import WZoom from '../vanilla-js-wheel-zoom/wheel-zoom'
+import { useCanvasStageStore } from '../useCanvasStage.js'
+const canvasStageStore = useCanvasStageStore()
+// const { scaleChange } = canvasStageStore
 // 获取工作台
 export const getDesignWorkbench = (selector = 'design-workbench-container') => {
   let className = selector
@@ -23,6 +15,7 @@ export const getDesignWorkbench = (selector = 'design-workbench-container') => {
   }
   return null
 }
+
 // 获取画板
 export const getDrawingBoard = (selector = 'drawing-board-container') => {
   let className = selector
@@ -35,6 +28,32 @@ export const getDrawingBoard = (selector = 'drawing-board-container') => {
   }
   return null
 }
+
+// 获取画布外容器
+export const getDrawingCanvasContainer = (selector = 'drawing-canvas-container') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
+  const canvas = document.querySelector(className)
+  if (canvas) {
+    return canvas
+  }
+  return null
+}
+// 获取画布
+export const getDrawingCanvas = (selector = 'drawing-canvas') => {
+  let className = selector
+  if (!selector.startsWith('.')) {
+    className = `.${selector}`
+  }
+  const canvas = document.querySelector(className)
+  if (canvas) {
+    return canvas
+  }
+  return null
+}
+
 export const getAncestorByClass = (target, className) => {
   if (target === null || target === document.body) {
     return null
@@ -62,14 +81,6 @@ export const getLayerItemModelById = (id, layerList) => {
     return layerItemModel
   }
   return null
-}
-
-export const updateLayerItemById = (option, layerList) => {
-  const { id, ...rest } = option
-  const layerData = getLayerItemModelById(id, layerList)
-  if (layerData) {
-    Object.assign(layerData, rest)
-  }
 }
 
 export const removeLayerItemModelById = (id, layerList) => {
@@ -206,4 +217,34 @@ export const getAllLayerItems = () => {
 // 生成随机颜色
 export const getRandomColor = function () {
   return '#' + ('00000' + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
+}
+
+export function init(content) {
+  wzoomModel.instance = WZoom.create(content, {
+    type: 'html',
+    maxScale: maxScale,
+    width: stageSize.width,
+    height: stageSize.height,
+    zoomOnClick: false,
+    // dragScrollableOptions: {
+    //   onGrab: () => {
+    //     console.log('ongrab')
+    //     content.parentElement.style.cursor = 'grabbing'
+    //   },
+    //   onDrop: () => {
+    //     content.parentElement.style.cursor = 'default'
+    //   },
+    // },
+    prepare: (instance) => {
+      scaleChange(instance.content.minScale)
+    },
+    rescale: (instance) => {
+      canvasStageStore.selectedLayerIds.length = 0
+      scaleChange(instance.content.currentScale)
+    },
+  })
+
+  window.addEventListener('resize', function () {
+    wzoomModel.instance.prepare()
+  })
 }

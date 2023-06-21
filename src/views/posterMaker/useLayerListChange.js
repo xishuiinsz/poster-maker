@@ -29,14 +29,14 @@ const mouseupEvt = (e) => {
   setTimeout(() => {
     if (tempList.length) {
       const lastItem = tempList.at(-1)
-      computedTempList(lastItem)
+      callbackStart(lastItem)
       tempList.length = 0
     }
     Object.assign(cacheData, { flagMouseDown: false })
   })
 }
 
-const computedTempList = (newList) => {
+export const callbackStart = (newList) => {
   const clonedNewList = structuredClone(newList)
   layerListChangeCb.length &&
     layerListChangeCb.forEach((fun) => {
@@ -50,7 +50,7 @@ const userLayerListChange = (list) => {
     (newList, oldList) => {
       const rawNewLayerList = toRaw(newList)
       if (!cacheData.flagMouseDown) {
-        computedTempList(rawNewLayerList)
+        callbackStart(rawNewLayerList)
       } else {
         tempList.push(rawNewLayerList)
       }
