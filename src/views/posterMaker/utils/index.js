@@ -1,7 +1,7 @@
 import { layerItemClass, wzoomModel } from '../var.js'
 import WZoom from '../vanilla-js-wheel-zoom/wheel-zoom'
 import { useCanvasStageStore } from '../useCanvasStage.js'
-const canvasStageStore = useCanvasStageStore()
+
 // const { scaleChange } = canvasStageStore
 // 获取工作台
 export const getDesignWorkbench = (selector = 'design-workbench-container') => {
@@ -220,6 +220,7 @@ export const getRandomColor = function () {
 }
 
 export function init(content) {
+  const canvasStageStore = useCanvasStageStore()
   wzoomModel.instance = WZoom.create(content, {
     type: 'html',
     maxScale: maxScale,

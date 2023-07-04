@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
 import { toRaw } from 'vue'
+import axios from 'axios'
+import { ElLoading } from 'element-plus'
+import { getDesignWorkbench } from './utils/index.js'
 export const scaleStep = 0.1
 export const minScale = 0.2
 export const maxScale = 4
@@ -14,6 +17,18 @@ export const useCanvasStageStore = defineStore('canvasStage', {
   },
   getters: {},
   actions: {
+    // 调接口获取图层列表数据
+    async fetchLayerList() {
+      const designWorkbench = getDesignWorkbench()
+      const loadingInstance = ElLoading.service({ target: designWorkbench })
+      const resp = await axios.get('./template1.json')
+      loadingInstance.close()
+      if (resp?.data.length) {
+        this.layerList.push(...resp.data)
+      } else {
+        this.layerList.length = 0
+      }
+    },
     // 更新图层数据，基于ID
     updateLayerDataById({ id, ...rest }) {
       const [layerData] = this.layerList.filter((item) => item.id === id)
