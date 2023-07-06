@@ -4,7 +4,7 @@
       <div class="drawing-board-container">
         <div class="drawing-canvas-container">
           <div class="drawing-canvas">
-            <bgLayerComp :layerData="layerDataBg" />
+            <bgLayerComp :layerData="canvasStageStore.bgLayerData" />
             <layerRenderComp :layerList="canvasStageStore.layerList.slice(1)" />
           </div>
         </div>
@@ -32,15 +32,6 @@ userLayerListChange(canvasStageStore.layerList)
 useKeyboardEvent()
 const { selectAllLayers, fetchLayerList } = canvasStageStore
 
-// 计算背景图层数据
-const layerDataBg = computed(() => {
-  if (canvasStageStore.layerList.length) {
-    const [layerData] = canvasStageStore.layerList
-    return layerData
-  }
-  return {}
-})
-
 // ctrl + a 快捷键回调
 const ctrlAKeyEvt = (e) => {
   if (e.target.hasAttribute('contenteditable') || e.target instanceof HTMLInputElement) {
@@ -53,11 +44,9 @@ const ctrlAKeyEvt = (e) => {
 onMounted(async () => {
   await fetchLayerList()
   if (canvasStageStore.layerList.length) {
-    const [layerDataBg] = canvasStageStore.layerList
     const designWorkbench = getDesignWorkbench()
     if (designWorkbench) {
-      const drawingCanvasOuter = getDrawingCanvas().parentElement
-      initCanvasTransform({ target: drawingCanvasOuter, width: layerDataBg.width, heigh: layerDataBg.heigh })
+      initCanvasTransform()
       registerMouseEvt(designWorkbench)
     }
     // 注册ctrl + a 快捷键

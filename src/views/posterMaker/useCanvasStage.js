@@ -15,7 +15,15 @@ export const useCanvasStageStore = defineStore('canvasStage', {
       selectedLayerIds: [],
     }
   },
-  getters: {},
+  getters: {
+    bgLayerData(state) {
+      let _bgLayerData = {}
+      if (state.layerList.length) {
+        ;[_bgLayerData] = state.layerList
+      }
+      return _bgLayerData
+    },
+  },
   actions: {
     // 调接口获取图层列表数据
     async fetchLayerList() {

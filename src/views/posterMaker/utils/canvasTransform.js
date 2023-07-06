@@ -1,10 +1,12 @@
 import { wzoomModel } from '../var.js'
 import WZoom from '../vanilla-js-wheel-zoom/wheel-zoom'
 import { useCanvasStageStore, maxScale } from '../useCanvasStage.js'
-export function initCanvasTransform(data) {
+import { getDrawingCanvasContainer } from './index.js'
+export function initCanvasTransform() {
   const canvasStageStore = useCanvasStageStore()
-  const { scaleChange } = canvasStageStore
-  const { target: content, width, height } = data
+  const { scaleChange, bgLayerData } = canvasStageStore
+  const { width, height } = bgLayerData
+  const content = getDrawingCanvasContainer()
   wzoomModel.instance = WZoom.create(content, {
     type: 'html',
     maxScale: maxScale,
