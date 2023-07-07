@@ -21,8 +21,9 @@ import {
 import { layerListChangeCb, registerChangeCb, unregisterChangeCb } from '../useLayerListChange.js'
 import { useCanvasStageStore } from '@/views/posterMaker/useCanvasStage.js'
 import { regKeyupCb, unregKeyupCb } from '../useKeyboardEvent.js'
+import { initCanvasTransform } from '../utils/canvasTransform'
 const canvasStageStore = useCanvasStageStore()
-const { updateOverallLayer, layerList, clearSelectedLayers } = canvasStageStore
+const { overrideAllLayers, layerList, clearSelectedLayers } = canvasStageStore
 const clonedRawLayerList = structuredClone(toRaw(layerList))
 const currentIndex = ref(0)
 const recordList = [clonedRawLayerList]
@@ -48,13 +49,23 @@ const disabledNextStep = computed(() => {
     return flag
 })
 
+// 当检测时有画布尺寸变化时，重置画布形变。
+const checkBgLayerChange = (lastLayerState, currentLayerState) => {
+    const [lastBgData] = lastLayerState
+    const [currentBgData] = currentLayerState
+    if (lastBgData.width + lastBgData.height !== currentBgData.width + currentBgData.height) {
+        initCanvasTransform()
+    }
+}
+
 // 上一步 点击事件
 const preStep = () => {
     clearSelectedLayers()
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value - 1
     const list = recordList[currentIndex.value]
-    updateOverallLayer(structuredClone(list))
+    overrideAllLayers(structuredClone(list))
+    checkBgLayerChange(recordList[currentIndex.value + 1], list)
 }
 // 下一步 点击事件
 const nextStep = () => {
@@ -62,7 +73,8 @@ const nextStep = () => {
     Object.assign(cacheData, { flagRecord: false })
     currentIndex.value = currentIndex.value + 1
     const list = recordList[currentIndex.value]
-    updateOverallLayer(structuredClone(list))
+    overrideAllLayers(structuredClone(list))
+    checkBgLayerChange(recordList[currentIndex.value - 1], list)
 }
 // 改变时执行回调
 const changeCb = (newList) => {

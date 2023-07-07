@@ -60,8 +60,8 @@ export const useCanvasStageStore = defineStore('canvasStage', {
         layerData.y += y / this.scaleRate
       }
     },
-    // 整体更新图层
-    updateOverallLayer(list) {
+    // 覆盖全部图层
+    overrideAllLayers(list) {
       this.layerList.length = 0
       this.layerList.push(...list)
     },
