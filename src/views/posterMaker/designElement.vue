@@ -122,31 +122,35 @@ import {
   getRandomColor
 } from './utils/index.js'
 import { restoreSelectionRange } from './utils/textLayer.js'
+import { regLscCb } from './useLayerSelectChange.js'
+
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
-const { layerList, updateLayerDataById, selectedLayerIds } = canvasStageStore
+const { updateLayerDataById, getLayerDataById, getLayerTypeById } = canvasStageStore
 const rotateLayer = ref<string | number>(rotateDefault)
 const fontSize = ref<number>(14)
 const fontFamily = ref<string>('microsoft yahei')
 const fontColor = ref<string>('#333')
-watch(
-  () => canvasStageStore.selectedLayerIds,
-  (newIds, oldIds) => {
-    const rawSelectedLayerIds = toRaw(newIds)
-    if (rawSelectedLayerIds.length === 1) {
-      const [id] = rawSelectedLayerIds
-      const layerData = getLayerItemModelById(id, layerList)
-      if (layerData) {
-        if (layerData.rotate) {
-          rotateLayer.value = layerData.rotate
-        } else {
-          rotateLayer.value = rotateDefault
-        }
-      }
-    }
-  }
-)
+// 回显元素旋转角度
+const echoLayerRotate = (id) => {
+  const layerData = getLayerDataById(id)
+  rotateLayer.value = layerData.rotate
+}
 
+// 初始化文本图层富文本编辑器
+const initRichEditor = (id) => {
+  console.log(id);
+
+}
+// 图层change事件
+const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
+  if (newSelectedIds.length === 1) {
+    echoLayerRotate(...newSelectedIds)
+    getLayerTypeById(...newSelectedIds) === 'text' && initRichEditor(...newSelectedIds)
+  }
+}
+
+// 元素旋转角度change事件
 const rotateChangeHandler = (value: number) => {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   if (rawSelectedLayerIds.length === 1) {
@@ -429,6 +433,7 @@ function textDecorationClick() {
 onMounted(() => {
   // 注册选区变化
   document.addEventListener('selectionchange', selectionchangeEvt, true)
+  regLscCb(selectedLayerChange)
 })
 onUnmounted(() => {
   // 注册选区变化

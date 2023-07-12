@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { toRaw } from 'vue'
+import { toRaw, watch } from 'vue'
 import axios from 'axios'
 import { ElLoading } from 'element-plus'
 import { getDesignWorkbench } from './utils/index.js'
@@ -79,6 +79,18 @@ export const useCanvasStageStore = defineStore('canvasStage', {
         .slice(1)
         .map((item) => item.id)
       this.selectedLayerIds.push(...ids)
+    },
+    getLayerDataById(id) {
+      const [layerData] = this.layerList.filter((item) => item.id === id)
+      return layerData
+    },
+    getLayerTypeById(id) {
+      let type = ''
+      const layerData = this.getLayerDataById(id)
+      if (layerData && layerData.type) {
+        type = layerData.type
+      }
+      return type
     },
   },
 })

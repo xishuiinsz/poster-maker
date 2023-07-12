@@ -9,7 +9,7 @@
 </template>
 <script setup lang="ts" name="TextLayerComp">
 import { ref } from 'vue'
-import { useCanvasStageStore, minScale, maxScale } from '../useCanvasStage.js'
+import { useCanvasStageStore } from '../useCanvasStage.js'
 import { getAncestorByClass } from '../utils/index.js'
 import layerZoomBox from '../layerZoomBox.vue'
 import { saveSelectionRange } from '../utils/textLayer.js'

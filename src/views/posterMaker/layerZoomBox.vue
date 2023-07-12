@@ -79,22 +79,18 @@ const emits = defineEmits(['updateLayerOption', 'layZoomBoxMouseupEvt', 'rbpResi
 // 图层选择
 const layerItemSelectHandler = (shiftKeyFlag: boolean) => {
   const layerId = props.id
-  const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   if (shiftKeyFlag) {
-
-    if (rawSelectedLayerIds.includes(layerId)) {
-      const index = rawSelectedLayerIds.findIndex((id: string) => id === layerId)
+    if (canvasStageStore.selectedLayerIds.includes(layerId)) {
+      const index = canvasStageStore.selectedLayerIds.findIndex((id: string) => id === layerId)
       canvasStageStore.selectedLayerIds.splice(index, 1)
     } else {
       canvasStageStore.selectedLayerIds.push(layerId)
     }
   } else {
-    if (!rawSelectedLayerIds.includes(layerId)) {
-      canvasStageStore.$patch({
-        selectedLayerIds: [layerId],
-      })
+    if (!canvasStageStore.selectedLayerIds.includes(layerId)) {
+      canvasStageStore.selectedLayerIds.length = 0
+      canvasStageStore.selectedLayerIds.push(layerId)
     }
-
   }
 }
 

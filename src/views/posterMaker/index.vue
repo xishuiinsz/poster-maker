@@ -24,6 +24,7 @@ import bgLayerComp from './bgLayerComp/index.vue'
 import layerRenderComp from './layerRenderComp.vue'
 import dragSelectionBox from './dragSelectionBox/dragSelectionBox.vue'
 import userLayerListChange from './useLayerListChange.js'
+import initLscWatch from './useLayerSelectChange.js'
 import useKeyboardEvent from './useKeyboardEvent.js'
 const canvasStageStore = useCanvasStageStore()
 // 初始化监听图层数据变化
@@ -31,7 +32,8 @@ userLayerListChange(canvasStageStore.layerList)
 // 全局注册keyboard事件
 useKeyboardEvent()
 const { selectAllLayers, fetchLayerList } = canvasStageStore
-
+// 初始化监听图层选中变化
+initLscWatch(canvasStageStore)
 // ctrl + a 快捷键回调
 const ctrlAKeyEvt = (e) => {
   if (e.target.hasAttribute('contenteditable') || e.target instanceof HTMLInputElement) {

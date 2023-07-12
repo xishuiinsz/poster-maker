@@ -1,4 +1,4 @@
-// 图层数据变化回调收口
+// 键盘事件总入口
 import { onUnmounted, watch, toRaw } from 'vue'
 const keyEvtHub = {
   // 形如：  'ctrl+a': ()=>{},
