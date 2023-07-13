@@ -137,16 +137,10 @@ const echoLayerRotate = (id) => {
   rotateLayer.value = layerData.rotate
 }
 
-// 初始化文本图层富文本编辑器
-const initRichEditor = (id) => {
-  console.log(id);
-
-}
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
   if (newSelectedIds.length === 1) {
     echoLayerRotate(...newSelectedIds)
-    getLayerTypeById(...newSelectedIds) === 'text' && initRichEditor(...newSelectedIds)
   }
 }
 
