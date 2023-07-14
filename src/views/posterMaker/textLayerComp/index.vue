@@ -2,8 +2,7 @@
   <div @click.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
     :style="getLayerStyle(layerData)">
     <div class="layer-element" @click.stop="textLayerClick" :class="layerElementClassName" ref="refLayerElement"
-      v-html="layerData.html" @blur.capture="layerElementBlurEvt" @mousedown.stop @mousemove.stop
-      @mouseup.stop="layerElementMouseupEvt"></div>
+      v-html="layerData.html" @mousemove.stop></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler"
       @rbpResize="rbpResizeHandler" />
   </div>
@@ -29,10 +28,7 @@ const propsToLayZoomBox = {
   type: props.layerData.type,
 }
 
-function textLayerClick({ target }) {
-  const layerElement = getAncestorByClass(target, 'layer-element')
-  let selector = '.layer-text.is-active'
-  selector += ' .' + layerElement.className
+function renderTinymcd(selector) {
   window.tinymce.init({
     selector,
     inline: true,
@@ -40,9 +36,13 @@ function textLayerClick({ target }) {
     menubar: false,
     toolbar,
   });
-  // document.addEventListener('click', () => {
-  //   window.tinymce.remove()
-  // }, true)
+}
+
+function textLayerClick({ target }) {
+  const layerElement = getAncestorByClass(target, 'layer-element')
+  let selector = '.layer-text.is-active'
+  selector += ' .' + layerElement.className
+  renderTinymcd(selector)
 }
 
 function getLayerItemClass(layer) {

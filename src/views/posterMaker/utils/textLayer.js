@@ -1,4 +1,4 @@
-import { getActiveLayers } from './index.js'
+import { getActiveLayers, getLayerItemDomById } from './index.js'
 // 缓存的选区数据
 export const cacheData = {
   rangeOffset: [],
@@ -102,4 +102,15 @@ export const getSingleTextElement = () => {
     }
   }
   return null
+}
+
+export const getTextLayerHtmlById = (id) => {
+  const layerDom = getLayerItemDomById(id)
+  if (layerDom) {
+    const layerElement = layerDom.querySelector('.layer-element')
+    if (layerElement) {
+      return layerElement.innerHTML
+    }
+  }
+  return ''
 }

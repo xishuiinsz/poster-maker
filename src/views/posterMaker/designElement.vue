@@ -121,7 +121,7 @@ import {
   removeLayerItemModelById,
   getRandomColor
 } from './utils/index.js'
-import { restoreSelectionRange } from './utils/textLayer.js'
+import { restoreSelectionRange, getTextLayerHtmlById } from './utils/textLayer.js'
 import { regLscCb } from './useLayerSelectChange.js'
 
 const rotateDefault = 0
@@ -137,8 +137,20 @@ const echoLayerRotate = (id) => {
   rotateLayer.value = layerData.rotate
 }
 
+const saveTextLayerData = (id) => {
+  const html = getTextLayerHtmlById(id)
+  updateLayerDataById({ id, html })
+}
+
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
+  // 清除tinymce实例
+  window.tinymce.remove()
+  if (oldSelectedIds.length === 1) {
+    if (getLayerTypeById(...oldSelectedIds) === 'text') {
+      saveTextLayerData(...oldSelectedIds)
+    }
+  }
   if (newSelectedIds.length === 1) {
     echoLayerRotate(...newSelectedIds)
   }
@@ -186,10 +198,7 @@ function fontFamilyFocus(flag: boolean) {
 
 // 字体集改变事件
 function fontFamilyChange(value) {
-  setTimeout(() => {
-    restoreSelectionRange()
-    setRangeStyle({ fontFamily: value })
-  }, 200);
+
 
 }
 
@@ -200,7 +209,6 @@ function fontSizeInputMousedown() { }
 // 字号输入框change事件
 function fontSizeChange(value: number) {
   document.getSelection()?.empty()
-  restoreSelectionRange()
   setRangeStyle({ fontSize: `${value}px` })
 }
 
