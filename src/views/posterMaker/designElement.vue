@@ -132,28 +132,33 @@ const fontSize = ref<number>(14)
 const fontFamily = ref<string>('microsoft yahei')
 const fontColor = ref<string>('#333')
 // 回显元素旋转角度
-const echoLayerRotate = (id) => {
-  const layerData = getLayerDataById(id)
-  rotateLayer.value = layerData.rotate
+const echoLayerRotate = (ids) => {
+  if (ids.length === 1) {
+    const [id] = ids
+    const layerData = getLayerDataById(id)
+    rotateLayer.value = layerData.rotate
+  } else {
+    rotateLayer.value = 0
+  }
 }
 
-const saveTextLayerData = (id) => {
-  const html = getTextLayerHtmlById(id)
-  updateLayerDataById({ id, html })
+// 离开text图层时保存数据
+const saveTextLayerData = (ids) => {
+  if (ids.length === 1) {
+    const [id] = ids
+    if (getLayerTypeById(id) === 'text') {
+      const html = getTextLayerHtmlById(id)
+      updateLayerDataById({ id, html })
+    }
+  }
 }
 
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
-  // 清除tinymce实例
-  window.tinymce.remove()
-  if (oldSelectedIds.length === 1) {
-    if (getLayerTypeById(...oldSelectedIds) === 'text') {
-      saveTextLayerData(...oldSelectedIds)
-    }
-  }
-  if (newSelectedIds.length === 1) {
-    echoLayerRotate(...newSelectedIds)
-  }
+  // 处理文本图层逻辑
+  saveTextLayerData(oldSelectedIds)
+  // 回显rotate
+  echoLayerRotate(newSelectedIds)
 }
 
 // 元素旋转角度change事件

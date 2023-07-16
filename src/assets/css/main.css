@@ -127,3 +127,12 @@ a {
 [hidden] {
   display: none !important;
 }
+
+@font-face {
+  font-family: AlibabaPuHuiTi-Regular;
+  src: url('@/assets/fonts/AlibabaPuHuiTi-3-55-Regular.woff2');
+}
+@font-face {
+  font-family: AlibabaPuHuiTi-Heavy;
+  src: url('@/assets/fonts/AlibabaPuHuiTi-3-105-Heavy.woff2');
+}

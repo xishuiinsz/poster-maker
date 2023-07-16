@@ -1,51 +1,81 @@
 <template>
   <div @click.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
     :style="getLayerStyle(layerData)">
-    <div class="layer-element" @click.stop="textLayerClick" :class="layerElementClassName" ref="refLayerElement"
-      v-html="layerData.html" @mousemove.stop></div>
-    <layerZoomBox v-bind="propsToLayZoomBox" @layZoomBoxMouseupEvt="layZoomBoxMouseupHandler"
+    <div class="layer-element" style="outline: none;" @click="textLayerClick" @blur="blurEvt"
+      :class="layerElementClassName" ref="refLayerElement" v-html="layerData.html" @mousemove.stop></div>
+    <layerZoomBox v-bind="propsToLayZoomBox" @layerZoomBoxMouseupEvt="layerZoomBoxMouseupHandler"
       @rbpResize="rbpResizeHandler" />
   </div>
 </template>
-<script setup lang="ts" name="TextLayerComp">
-import { ref } from 'vue'
+<script setup>
+import { ref, nextTick } from 'vue'
 import { useCanvasStageStore } from '../useCanvasStage.js'
-import { getAncestorByClass } from '../utils/index.js'
+import { getAncestorByClass, isAncestorElement } from '../utils/index.js'
 import layerZoomBox from '../layerZoomBox.vue'
 import { saveSelectionRange } from '../utils/textLayer.js'
-import { toolbar } from './richText'
+import { toolbar, fontFamilyFormats } from './richText'
 const refLayerElement = ref(null)
 const canvasStageStore = useCanvasStageStore()
+const cacheData = {
+
+}
 const props = defineProps({
   layerData: {
     type: Object,
     default: () => { },
   },
 })
-const layerElementClassName = ref<string>('')
+const layerElementClassName = ref('')
 const propsToLayZoomBox = {
   id: props.layerData.id,
   type: props.layerData.type,
 }
 
-function renderTinymcd(selector) {
+function blurEvt (e) {
+  if (e.relatedTarget && window.tinymce?.activeEditor?.container) {
+    const editor = window.tinymce.activeEditor.container
+    const flag = isAncestorElement(e.relatedTarget, editor)
+    if (flag) {
+      return
+    }
+  }
+  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
+  // 清除tinymce实例
+  window.tinymce.remove()
+}
+
+function renderTinymcd (target) {
   window.tinymce.init({
-    selector,
+    target,
     inline: true,
     promotion: false,
     menubar: false,
     toolbar,
+    branding: false,
+    language: 'zh-Hans',
+    font_size_formats: '11px 12px 14px 16px 18px 24px 36px 48px 56px 72px',
+    font_family_formats: fontFamilyFormats,
+    valid_elements: 'p[style],strong,em,span[style],a[href],ul,ol,li',
+    valid_styles: {
+      '*': 'font-size,font-family,color,text-decoration,text-align'
+    },
+    powerpaste_word_import: 'clean',
+    powerpaste_html_import: 'clean',
   });
 }
 
-function textLayerClick({ target }) {
+function textLayerClick ({ target }) {
   const layerElement = getAncestorByClass(target, 'layer-element')
-  let selector = '.layer-text.is-active'
-  selector += ' .' + layerElement.className
-  renderTinymcd(selector)
+  if (layerElement.classList.contains('mce-edit-focus')) {
+    return
+  }
+  renderTinymcd(layerElement)
+  nextTick(() => {
+    layerElement.focus()
+  })
 }
 
-function getLayerItemClass(layer) {
+function getLayerItemClass (layer) {
   let className = `layer-${layer.type}`
   if (canvasStageStore.selectedLayerIds.includes(layer.id)) {
     className += ' is-active'
@@ -53,7 +83,7 @@ function getLayerItemClass(layer) {
   return className
 }
 
-function getLayerStyle(item) {
+function getLayerStyle (item) {
   const { width, height, x, y, rotate } = item
   return {
     width: width > 0 ? `${width}px` : width === '100%' ? '100%' : 'fit-content',
@@ -63,31 +93,16 @@ function getLayerStyle(item) {
     top: `${y}px`,
   }
 }
-// 鼠标释放事件
-function layerElementMouseupEvt(e: MouseEvent) {
-  saveSelectionRange()
-}
-function layerElementBlurEvt(e: FocusEvent) {
-  const textElement = e.target as HTMLElement
-  const textLayerItemEle = getAncestorByClass(textElement, 'layer-text') as HTMLElement
-  if (textLayerItemEle) {
-    textLayerItemEle.classList.remove('content-editable')
-  }
-  textElement!.removeAttribute('contenteditable')
-}
-function layZoomBoxMouseupHandler(target: HTMLElement) {
-  const textLayerItemEle = getAncestorByClass(target, 'layer-text') as HTMLElement
-  if (textLayerItemEle) {
-    const textElement = textLayerItemEle.querySelector('.layer-element')
-    if (textElement) {
-      textElement.setAttribute('contenteditable', 'true')
-    }
-    textLayerItemEle.classList.add('content-editable')
-  }
+
+function layerZoomBoxMouseupHandler (target) {
+  Object.assign(cacheData, {
+    zoomBox: target
+  })
+  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'none' })
 }
 
-function rbpResizeHandler({ x: offsetX, y: offsetY }) {
-  const text = refLayerElement!.value!.firstChild
+function rbpResizeHandler ({ x: offsetX, y: offsetY }) {
+  const text = refLayerElement?.value.firstChild
   if (offsetX > 0 && offsetY > 0) {
     let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
     fontSize += 0.3

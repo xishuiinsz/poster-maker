@@ -249,3 +249,14 @@ export function init(content) {
     wzoomModel.instance.prepare()
   })
 }
+
+// target2是否是target1的祖先元素
+export const isAncestorElement = (target1, target2) => {
+  if (target1 === document.body) {
+    return false
+  } else if (Array.from(target2.children).includes(target1)) {
+    return true
+  } else {
+    return isAncestorElement(target1.parentElement, target2)
+  }
+}
