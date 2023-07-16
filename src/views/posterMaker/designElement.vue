@@ -107,10 +107,10 @@
     </el-form>
   </div>
 </template>
-<script lang="ts" setup>
+<script setup>
 import { ref, toRaw, nextTick, unref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
-import { wzoomModel, layerData } from './var.js'
+import { wzoomModel } from './var.js'
 import { v4 as uuidv4 } from 'uuid'
 import { Plus, Minus, Star } from '@element-plus/icons-vue';
 import {
@@ -127,10 +127,10 @@ import { regLscCb } from './useLayerSelectChange.js'
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
 const { updateLayerDataById, getLayerDataById, getLayerTypeById } = canvasStageStore
-const rotateLayer = ref<string | number>(rotateDefault)
-const fontSize = ref<number>(14)
-const fontFamily = ref<string>('microsoft yahei')
-const fontColor = ref<string>('#333')
+const rotateLayer = ref(rotateDefault)
+const fontSize = ref(14)
+const fontFamily = ref('microsoft yahei')
+const fontColor = ref('#333')
 // 回显元素旋转角度
 const echoLayerRotate = (ids) => {
   if (ids.length === 1) {
@@ -162,7 +162,7 @@ const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
 }
 
 // 元素旋转角度change事件
-const rotateChangeHandler = (value: number) => {
+const rotateChangeHandler = (value) => {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   if (rawSelectedLayerIds.length === 1) {
     const [id] = rawSelectedLayerIds
@@ -176,13 +176,13 @@ const styleDefault = {
   textDecoration: 'none',
 }
 const styleOptions = reactive({ ...styleDefault })
-function fitBtnClick() {
+function fitBtnClick () {
   wzoomModel.instance.prepare()
 }
-function originBtnClick() {
+function originBtnClick () {
   wzoomModel.instance.transform(0, 0, 1)
 }
-function scaleChange(currentValue, oldValue) {
+function scaleChange (currentValue, oldValue) {
   const { instance } = wzoomModel
   if (currentValue > oldValue) {
     instance.zoomUp()
@@ -191,39 +191,39 @@ function scaleChange(currentValue, oldValue) {
   }
 }
 
-function fontColorChange() {
+function fontColorChange () {
   const color = getRandomColor()
   setRangeStyle({ color })
 }
 
 // 字体集列表出现|隐藏回调
-function fontFamilyFocus(flag: boolean) {
+function fontFamilyFocus (flag) {
   restoreSelectionRange()
 }
 
 // 字体集改变事件
-function fontFamilyChange(value) {
+function fontFamilyChange (value) {
 
 
 }
 
 // 字号输入框鼠标按下事件
-function fontSizeInputMousedown() { }
+function fontSizeInputMousedown () { }
 
 
 // 字号输入框change事件
-function fontSizeChange(value: number) {
+function fontSizeChange (value) {
   document.getSelection()?.empty()
   setRangeStyle({ fontSize: `${value}px` })
 }
 
 // 增加 | 减少 字号
-function fontSizeAdd(num: number) {
+function fontSizeAdd (num) {
   fontSize.value = Number(unref(fontSize)) + num
   setRangeStyle({ fontSize: `${unref(fontSize)}px` })
 }
 
-function handleSuccess(response) {
+function handleSuccess (response) {
   console.log(response)
   const { file } = response.files
   const img = new Image()
@@ -232,21 +232,21 @@ function handleSuccess(response) {
   }
   img.src = file
 }
-function beforeUpload(file) {
+function beforeUpload (file) {
   this.loadingInstance = this.$loading({
     target: this.$el,
   })
 }
 
-function getOffsetOfDirection(elementList: HTMLDivElement[], direction: 'left' | 'right' | 'top' | 'bottom', minMax: 'max' | 'min') {
-  const array = elementList.map((ele: HTMLDivElement) => {
+function getOffsetOfDirection (elementList, direction, minMax) {
+  const array = elementList.map((ele) => {
     const value = ele.getBoundingClientRect()[direction]
     return value
   })
   return Math[minMax](...array)
 }
 // 组合
-function layersGroup() {
+function layersGroup () {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   const rawLayerList = toRaw(canvasStageStore.layerList)
   const activeLayers = getActiveLayers()
@@ -295,7 +295,7 @@ function layersGroup() {
 }
 
 // 解除组合
-function layersUngroup() {
+function layersUngroup () {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   const rawScaleRate = toRaw(canvasStageStore.scaleRate)
   if (rawSelectedLayerIds.length === 1) {
@@ -333,7 +333,7 @@ function layersUngroup() {
   }
 }
 // 删除
-function layersRemove() {
+function layersRemove () {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
   const rawLayerList = toRaw(canvasStageStore.layerList)
   rawSelectedLayerIds.forEach((id) => {
@@ -342,9 +342,9 @@ function layersRemove() {
   })
 }
 
-function getElementStyles(element: HTMLElement) {
+function getElementStyles (element) {
   const list = ['fontWeight', 'fontStyle', 'textDecoration']
-  list.forEach((el: string) => {
+  list.forEach((el) => {
     if (element.style[el]) {
       Object.assign(styleOptions, { [el]: element.style[el] })
     } else {
@@ -353,16 +353,16 @@ function getElementStyles(element: HTMLElement) {
   })
 }
 
-function echoStyleBasedOnContainer(element) {
+function echoStyleBasedOnContainer (element) {
   getElementStyles(element)
 }
 
 // 全选
-function layersSelectAll() { }
+function layersSelectAll () { }
 // 选区变化事件
-const selectionchangeEvt = (e: Event) => {
+const selectionchangeEvt = (e) => {
   const selection = document.getSelection()
-  if (selection!.rangeCount) {
+  if (selection.rangeCount) {
     const range = selection?.getRangeAt(0)
     let container
     if (range?.collapsed) {
@@ -373,25 +373,25 @@ const selectionchangeEvt = (e: Event) => {
         container = range.startContainer.parentElement
       }
     } else {
-      if (range!.endContainer.nodeType === 1) {
-        container = range!.endContainer
+      if (range.endContainer.nodeType === 1) {
+        container = range.endContainer
       }
-      if (range!.endContainer.nodeType === 3) {
-        container = range!.endContainer.parentElement
+      if (range.endContainer.nodeType === 3) {
+        container = range.endContainer.parentElement
       }
     }
     echoStyleBasedOnContainer(container)
   }
 }
 // 设置选区样式
-function setRangeStyle(option: { [key: string]: string }) {
+function setRangeStyle (option) {
   const selection = document.getSelection()
-  if (selection!.rangeCount) {
-    const range = selection?.getRangeAt(0) as Range
+  if (selection.rangeCount) {
+    const range = selection?.getRangeAt(0)
     if (!range?.collapsed && !!range?.toString()) {
       const container = getContainerBasedOnRange(range)
       if (container) {
-        Object.assign((container as HTMLElement).style, option)
+        Object.assign((container).style, option)
       } else {
         const textContent = range?.toString()
         const span = document.createElement('span')
@@ -404,7 +404,7 @@ function setRangeStyle(option: { [key: string]: string }) {
   }
 }
 
-function getContainerBasedOnRange(range: Range) {
+function getContainerBasedOnRange (range) {
   const { startOffset, startContainer, endOffset, endContainer, commonAncestorContainer } = range
   if (endContainer.nodeType === 1) {
     const container = commonAncestorContainer.childNodes[endOffset - 1]
@@ -421,18 +421,18 @@ function getContainerBasedOnRange(range: Range) {
 }
 
 // 加粗
-function fontWeigthClick() {
+function fontWeigthClick () {
   const fontWeight = styleOptions.fontWeight === 'normal' ? 'bold' : 'normal'
   setRangeStyle({ fontWeight })
 }
 // 斜体
-function fontStyleClick() {
+function fontStyleClick () {
   const fontStyle = styleOptions.fontStyle === 'normal' ? 'italic' : 'normal'
   setRangeStyle({ fontStyle })
 }
 
 // 下划线
-function textDecorationClick() {
+function textDecorationClick () {
   const textDecoration = styleOptions.textDecoration === 'none' ? 'underline' : 'none'
   setRangeStyle({ textDecoration })
 }

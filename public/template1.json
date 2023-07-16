@@ -100,6 +100,6 @@
         "y": 36,
         "type": "text",
         "name": "文字图层2",
-        "html": "<span style=\"user-select:none;\" >你好，《在线海报》欢迎您！</span>"
+        "html": "<div >你好，《在线海报》欢迎您！</div>"
     }
 ]

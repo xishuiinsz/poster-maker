@@ -1,8 +1,8 @@
 <template>
   <div @click.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
     :style="getLayerStyle(layerData)">
-    <div class="layer-element" style="outline: none;" @click="textLayerClick" @blur="blurEvt"
-      :class="layerElementClassName" ref="refLayerElement" v-html="layerData.html" @mousemove.stop></div>
+    <div class="layer-element" style="outline: none;" :class="layerElementClassName" ref="refLayerElement"
+      v-html="layerData.html" @mousemove.stop></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layerZoomBoxMouseupEvt="layerZoomBoxMouseupHandler"
       @rbpResize="rbpResizeHandler" />
   </div>
@@ -12,7 +12,6 @@ import { ref, nextTick } from 'vue'
 import { useCanvasStageStore } from '../useCanvasStage.js'
 import { getAncestorByClass, isAncestorElement } from '../utils/index.js'
 import layerZoomBox from '../layerZoomBox.vue'
-import { saveSelectionRange } from '../utils/textLayer.js'
 import { toolbar, fontFamilyFormats } from './richText'
 const refLayerElement = ref(null)
 const canvasStageStore = useCanvasStageStore()
@@ -59,20 +58,15 @@ function renderTinymcd (target) {
     valid_styles: {
       '*': 'font-size,font-family,color,text-decoration,text-align'
     },
+    init_instance_callback: function (editor) {
+      // 编辑器完成初始化后取消监听文本图层的点击事件
+      unregTextLayerClickEvt()
+      // 编辑器完成初始化后监听文本图层的失焦事件
+      editor.on('blur', textLayerBlurEvt)
+    },
     powerpaste_word_import: 'clean',
     powerpaste_html_import: 'clean',
   });
-}
-
-function textLayerClick ({ target }) {
-  const layerElement = getAncestorByClass(target, 'layer-element')
-  if (layerElement.classList.contains('mce-edit-focus')) {
-    return
-  }
-  renderTinymcd(layerElement)
-  nextTick(() => {
-    layerElement.focus()
-  })
 }
 
 function getLayerItemClass (layer) {
@@ -94,11 +88,47 @@ function getLayerStyle (item) {
   }
 }
 
+// 文本图层点击事件
+function textLayerClickEvt ({ target }) {
+  const layerElement = getAncestorByClass(target, 'layer-element')
+  renderTinymcd(layerElement)
+}
+
+// 注册文本图层点击事件
+function regTextLayerClickEvt () {
+  const el = refLayerElement.value
+  el.addEventListener('click', textLayerClickEvt)
+}
+
+// 反注册文本图层点击事件
+function unregTextLayerClickEvt () {
+  const el = refLayerElement.value
+  el.removeEventListener('click', textLayerClickEvt)
+}
+
+
+// 文本图层失焦事件
+function textLayerBlurEvt (e) {
+  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
+  // 清除tinymce实例
+  window.tinymce.remove()
+  unregTextLayerBlurEvt
+  const el = refLayerElement.value
+  el.removeAttribute('id')
+}
+
+// 反注册文本图层失焦事件
+function unregTextLayerBlurEvt () {
+  const el = refLayerElement.value
+  el.removeEventListener('blur', textLayerBlurEvt)
+}
+
 function layerZoomBoxMouseupHandler (target) {
   Object.assign(cacheData, {
     zoomBox: target
   })
   Object.assign(cacheData.zoomBox.style, { pointerEvents: 'none' })
+  regTextLayerClickEvt()
 }
 
 function rbpResizeHandler ({ x: offsetX, y: offsetY }) {
