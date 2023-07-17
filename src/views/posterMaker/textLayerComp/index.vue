@@ -1,6 +1,6 @@
 <template>
-  <div @click.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)" class="layer-item"
-    :style="getLayerStyle(layerData)">
+  <div @click.stop @mousedown.stop @mouseup.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)"
+    class="layer-item" :style="getLayerStyle(layerData)">
     <div class="layer-element" style="outline: none;" :class="layerElementClassName" ref="refLayerElement"
       v-html="layerData.html" @mousemove.stop></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layerZoomBoxMouseupEvt="layerZoomBoxMouseupHandler"
@@ -62,7 +62,7 @@ function renderTinymcd (target) {
       // 编辑器完成初始化后取消监听文本图层的点击事件
       unregTextLayerClickEvt()
       // 编辑器完成初始化后监听文本图层的失焦事件
-      editor.on('blur', textLayerBlurEvt)
+      regTextLayerBlurEvt()
     },
     powerpaste_word_import: 'clean',
     powerpaste_html_import: 'clean',
@@ -92,6 +92,9 @@ function getLayerStyle (item) {
 function textLayerClickEvt ({ target }) {
   const layerElement = getAncestorByClass(target, 'layer-element')
   renderTinymcd(layerElement)
+  setTimeout(() => {
+    layerElement.focus()
+  })
 }
 
 // 注册文本图层点击事件
@@ -110,6 +113,13 @@ function unregTextLayerClickEvt () {
 // 文本图层失焦事件
 function textLayerBlurEvt (e) {
   Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
+  if (e.relatedTarget && window.tinymce?.activeEditor?.container) {
+    const editor = window.tinymce.activeEditor.container
+    const flag = isAncestorElement(e.relatedTarget, editor)
+    if (flag) {
+      return
+    }
+  }
   // 清除tinymce实例
   window.tinymce.remove()
   unregTextLayerBlurEvt
@@ -117,6 +127,11 @@ function textLayerBlurEvt (e) {
   el.removeAttribute('id')
 }
 
+// 注册文本图层失焦事件
+function regTextLayerBlurEvt () {
+  const el = refLayerElement.value
+  el.addEventListener('blur', textLayerBlurEvt, true)
+}
 // 反注册文本图层失焦事件
 function unregTextLayerBlurEvt () {
   const el = refLayerElement.value
