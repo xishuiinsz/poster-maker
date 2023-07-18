@@ -13,8 +13,10 @@ import { useCanvasStageStore } from '../useCanvasStage.js'
 import { getAncestorByClass, isAncestorElement } from '../utils/index.js'
 import layerZoomBox from '../layerZoomBox.vue'
 import { toolbar, fontFamilyFormats } from './richText'
+import { getTextLayerHtmlById } from '../utils/textLayer.js'
 const refLayerElement = ref(null)
 const canvasStageStore = useCanvasStageStore()
+const { updateLayerDataById } = canvasStageStore
 const cacheData = {
 
 }
@@ -125,6 +127,9 @@ function textLayerBlurEvt (e) {
   unregTextLayerBlurEvt
   const el = refLayerElement.value
   el.removeAttribute('id')
+  const { id, html } = props.layerData
+  const htmlNew = getTextLayerHtmlById(id)
+  htmlNew !== html && updateLayerDataById({ id, html: htmlNew })
 }
 
 // 注册文本图层失焦事件
@@ -176,17 +181,6 @@ function rbpResizeHandler ({ x: offsetX, y: offsetY }) {
       .icon-item {
         &.bmp {
           display: none !important;
-        }
-      }
-    }
-
-
-    &.content-editable {
-      :deep(.layer-zoom-box:not(.multi-layers-selected)) {
-        pointer-events: none;
-
-        .icon-item {
-          pointer-events: initial;
         }
       }
     }

@@ -121,7 +121,7 @@ import {
   removeLayerItemModelById,
   getRandomColor
 } from './utils/index.js'
-import { restoreSelectionRange, getTextLayerHtmlById } from './utils/textLayer.js'
+import { restoreSelectionRange } from './utils/textLayer.js'
 import { regLscCb } from './useLayerSelectChange.js'
 
 const rotateDefault = 0
@@ -142,21 +142,8 @@ const echoLayerRotate = (ids) => {
   }
 }
 
-// 离开text图层时保存数据
-const saveTextLayerData = (ids) => {
-  if (ids.length === 1) {
-    const [id] = ids
-    if (getLayerTypeById(id) === 'text') {
-      const html = getTextLayerHtmlById(id)
-      updateLayerDataById({ id, html })
-    }
-  }
-}
-
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
-  // 处理文本图层逻辑
-  saveTextLayerData(oldSelectedIds)
   // 回显rotate
   echoLayerRotate(newSelectedIds)
 }
