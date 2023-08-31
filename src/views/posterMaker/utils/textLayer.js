@@ -1,4 +1,5 @@
 import { getActiveLayers, getLayerItemDomById } from './index.js'
+export const lineHeightDefault = 28
 // 缓存的选区数据
 export const cacheData = {
   rangeOffset: [],

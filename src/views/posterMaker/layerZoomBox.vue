@@ -75,7 +75,7 @@ const getRbpHandlerStyle = computed(() => {
     transform: `translate(50%, 50%) scale( ${1 / canvasStageStore.scaleRate})`,
   }
 })
-const emits = defineEmits(['updateLayerOption', 'layerZoomBoxMouseupEvt', 'rbpResize'])
+const emits = defineEmits(['updateLayerOption', 'layerZoomBoxMouseupEvt', 'rbpResize', 'rbpMousedown'])
 // 图层选择
 const layerItemSelectHandler = (shiftKeyFlag: boolean) => {
   const layerId = props.id
@@ -152,11 +152,12 @@ const bmpMouseupEvt = (e) => {
 const rbpMousedownEvt = (e) => {
   document.addEventListener('mousemove', rbpMousemoveEvt, true)
   document.addEventListener('mouseup', rbpMouseupEvt, true)
+  emits('rbpMousedown', e)
 }
 // 右下点鼠标移动事件
 const rbpMousemoveEvt = (e) => {
   window.getSelection()?.empty()
-  emits('rbpResize', { x: e.movementX, y: e.movementY })
+  emits('rbpResize', e)
 }
 // 右下点鼠标释放事件
 const rbpMouseupEvt = (e) => {

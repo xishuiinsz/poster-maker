@@ -260,3 +260,39 @@ export const isAncestorElement = (target1, target2) => {
     return isAncestorElement(target1.parentElement, target2)
   }
 }
+
+/**
+ * Gets computed scale values
+ * @param {HTMLElement} element
+ * @returns {Object}
+ */
+export function getTransformScaleValues(element) {
+  const matrix = window.getComputedStyle(element).transform
+  if (matrix === 'none' || typeof matrix === 'undefined') {
+    return {
+      x: 1,
+      y: 1,
+    }
+  }
+  const matrixValues = matrix.match(/matrix.*\((.+)\)/)[1].split(', ')
+  return {
+    x: matrixValues[0],
+    y: matrixValues[3],
+  }
+}
+/**
+ * Sets computed translate values
+ * @param {HTMLElement} element
+ * @returns {Object}
+ */
+export function setTransformScaleValues(element, { x, y }) {
+  const matrix = window.getComputedStyle(element).transform
+  if (matrix === 'none' || typeof matrix === 'undefined') {
+    Object.assign(element.style, { transform: `matrix(${x},0,0,${y},0,0)` })
+  } else {
+    const matrixValues = matrix.match(/matrix.*\((.+)\)/)[1].split(', ')
+    matrixValues[0] = x
+    matrixValues[3] = y
+    Object.assign(element.style, { transform: `matrix(${matrixValues.join(',')})` })
+  }
+}

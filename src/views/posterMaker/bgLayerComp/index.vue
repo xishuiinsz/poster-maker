@@ -1,5 +1,5 @@
 <template>
-  <div @mousedown.stop="mousedownEvt" :class="getLayerItemClass(layerData)" :style="getLayerStyle(layerData)"
+  <div @mousedown="mousedownEvt" :class="getLayerItemClass(layerData)" :style="getLayerStyle(layerData)"
     v-html="layerData.html"></div>
 </template>
 <script setup lang="ts" name="BgLayerComp">

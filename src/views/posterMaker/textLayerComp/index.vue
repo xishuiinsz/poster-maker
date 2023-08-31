@@ -4,13 +4,14 @@
     <div class="layer-element" style="outline: none;" :class="layerElementClassName" ref="refLayerElement"
       v-html="layerData.html" @mousemove.stop></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layerZoomBoxMouseupEvt="layerZoomBoxMouseupHandler"
-      @rbpResize="rbpResizeHandler" />
+      @rbpMousedown="rbpMousedownEvt" />
   </div>
 </template>
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, toRaw, onMounted } from 'vue'
 import { useCanvasStageStore } from '../useCanvasStage.js'
-import { getAncestorByClass, isAncestorElement } from '../utils/index.js'
+import { getAncestorByClass, isAncestorElement, getLayerItemDomById, getTransformScaleValues, setTransformScaleValues } from '../utils/index.js'
+import { lineHeightDefault } from '../utils/textLayer'
 import layerZoomBox from '../layerZoomBox.vue'
 import { toolbar, fontFamilyFormats } from './richText'
 import { getTextLayerHtmlById } from '../utils/textLayer.js'
@@ -26,27 +27,15 @@ const props = defineProps({
     default: () => { },
   },
 })
+
 const layerElementClassName = ref('')
 const propsToLayZoomBox = {
   id: props.layerData.id,
   type: props.layerData.type,
 }
 
-function blurEvt (e) {
-  if (e.relatedTarget && window.tinymce?.activeEditor?.container) {
-    const editor = window.tinymce.activeEditor.container
-    const flag = isAncestorElement(e.relatedTarget, editor)
-    if (flag) {
-      return
-    }
-  }
-  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
-  // 清除tinymce实例
-  window.tinymce.remove()
-}
-
 function renderTinymcd (target) {
-  window.tinymce.init({
+  tinymce.init({
     target,
     inline: true,
     promotion: false,
@@ -115,15 +104,15 @@ function unregTextLayerClickEvt () {
 // 文本图层失焦事件
 function textLayerBlurEvt (e) {
   Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
-  if (e.relatedTarget && window.tinymce?.activeEditor?.container) {
-    const editor = window.tinymce.activeEditor.container
+  if (e.relatedTarget && tinymce?.activeEditor?.container) {
+    const editor = tinymce.activeEditor.container
     const flag = isAncestorElement(e.relatedTarget, editor)
     if (flag) {
       return
     }
   }
   // 清除tinymce实例
-  window.tinymce.remove()
+  tinymce.remove()
   unregTextLayerBlurEvt
   const el = refLayerElement.value
   el.removeAttribute('id')
@@ -150,25 +139,39 @@ function layerZoomBoxMouseupHandler (target) {
   Object.assign(cacheData.zoomBox.style, { pointerEvents: 'none' })
   regTextLayerClickEvt()
 }
-
-function rbpResizeHandler ({ x: offsetX, y: offsetY }) {
-  const text = refLayerElement?.value.firstChild
-  if (offsetX > 0 && offsetY > 0) {
-    let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
-    fontSize += 0.3
-    Object.assign(text.style, { fontSize: `${fontSize}px` })
-  }
-  if (offsetX < 0 && offsetY < 0) {
-    let fontSize = text.style.fontSize ? parseFloat(text.style.fontSize) : 16
-    fontSize -= 0.3
-    Object.assign(text.style, { fontSize: `${fontSize}px` })
-  }
+// 右下点 鼠标按下事件
+function rbpMousedownEvt (e) {
+  document.addEventListener('mousemove', rbpResizeHandler)
+  document.addEventListener('mouseup', rbpMouseUpHandler)
+  const { width, height, id } = props.layerData
+  const rootEle = getLayerItemDomById(id)
+  Object.assign(rootEle.style, { 'transform-origin': '0 0' })
+  Object.assign(cacheData, {
+    aspectRate: width / height,
+    rootEle
+  })
 }
-
+// 鼠标 释放事件
+function rbpMouseUpHandler () {
+  document.removeEventListener('mousemove', rbpResizeHandler)
+  document.removeEventListener('mouseup', rbpMouseUpHandler)
+}
+// 鼠标 移动事件
+function rbpResizeHandler ({ movementX, movementY }) {
+  const rawScaleRate = toRaw(canvasStageStore.scaleRate)
+  const { width, id, height } = props.layerData
+  const _width = width * rawScaleRate
+  const scale = movementX / _width
+  const currentScale = getTransformScaleValues(cacheData.rootEle).x
+  const scaleTotal = parseFloat(scale) + parseFloat(currentScale)
+  setTransformScaleValues(cacheData.rootEle, { x: scaleTotal, y: scaleTotal })
+}
+onMounted(() => { })
 </script>
 <style lang="scss" scoped>
 .layer-text {
   white-space: nowrap;
+  line-height: 28px;
 
   &.is-active {
     .layer-element {

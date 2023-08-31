@@ -94,8 +94,8 @@
     },
     {
         "id": "79165b99-164f-43c9-99cb-8728e0087034",
-        "width": 200,
-        "height": "auto",
+        "width": 220,
+        "height": 28,
         "x": 72,
         "y": 36,
         "type": "text",
