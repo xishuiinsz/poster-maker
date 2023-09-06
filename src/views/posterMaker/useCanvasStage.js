@@ -46,7 +46,8 @@ export const useCanvasStageStore = defineStore('canvasStage', {
     },
     // 静默更新图层数据，基于ID
     silentUpdateLayerDataById({ id, ...rest }) {
-      const [layerData] = toRaw(this.layerList).filter((item) => item.id === id)
+      const rawLayerList = toRaw(this.layerList)
+      const [layerData] = rawLayerList.filter((item) => item.id === id)
       if (layerData) {
         Object.assign(layerData, rest)
       }

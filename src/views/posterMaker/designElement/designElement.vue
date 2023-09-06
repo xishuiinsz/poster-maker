@@ -1,5 +1,12 @@
 <template>
   <div class="design-element">
+    <el-tabs v-model="activeTabItem" class="design-element-tabs" @tab-click="handleClick">
+      <el-tab-pane label="文本" name="text">文本</el-tab-pane>
+      <el-tab-pane label="图片" name="pciture">图片</el-tab-pane>
+      <el-tab-pane label="SVG" name="SVG">SVG</el-tab-pane>
+      <el-tab-pane label="背景" name="背景">背景</el-tab-pane>
+      <el-tab-pane label="画布" name="画布">画布</el-tab-pane>
+    </el-tabs>
     <el-form class="layer-toolbar">
       <el-form-item>
         <el-input-number v-model="canvasStageStore.scaleRate" :precision="2" @change="scaleChange" :step="scaleStep"
@@ -109,8 +116,8 @@
 </template>
 <script setup>
 import { ref, toRaw, nextTick, unref, reactive, watch, onMounted, onUnmounted } from 'vue'
-import { useCanvasStageStore, scaleStep, minScale, maxScale } from './useCanvasStage'
-import { wzoomModel } from './var.js'
+import { useCanvasStageStore, scaleStep, minScale, maxScale } from '../useCanvasStage'
+import { wzoomModel } from '../var.js'
 import { v4 as uuidv4 } from 'uuid'
 import { Plus, Minus, Star } from '@element-plus/icons-vue';
 import {
@@ -120,9 +127,9 @@ import {
   getLayerItemModelById,
   removeLayerItemModelById,
   getRandomColor
-} from './utils/index.js'
-import { restoreSelectionRange } from './utils/textLayer.js'
-import { regLscCb } from './useLayerSelectChange.js'
+} from '../utils/index.js'
+import { restoreSelectionRange } from '../utils/textLayer.js'
+import { regLscCb } from '../useLayerSelectChange.js'
 
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
@@ -131,6 +138,7 @@ const rotateLayer = ref(rotateDefault)
 const fontSize = ref(14)
 const fontFamily = ref('microsoft yahei')
 const fontColor = ref('#333')
+const activeTabItem = ref('text')
 // 回显元素旋转角度
 const echoLayerRotate = (ids) => {
   if (ids.length === 1) {
@@ -141,7 +149,9 @@ const echoLayerRotate = (ids) => {
     rotateLayer.value = 0
   }
 }
-
+const handleClick = (tab, event) => {
+  console.log(tab, event)
+}
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
   // 回显rotate
@@ -435,67 +445,4 @@ onUnmounted(() => {
 })
 
 </script>
-<style lang="scss">
-.design-element {
-  width: 250px;
-  background-color: #263445;
-  padding: 0 16px;
-  box-sizing: border-box;
-
-  .el-form {
-    &.layer-toolbar {
-      .el-form-item {
-        .el-form-item__label {
-          color: #fff;
-        }
-      }
-    }
-  }
-}
-
-.font-weight-bold {
-  >span {
-    font-weight: bold;
-    color: black;
-  }
-}
-
-.font-weight-normal {
-  >span {
-    font-weight: normal;
-    color: inherit;
-  }
-}
-
-.font-style-italic {
-  >span {
-    font-style: italic;
-    color: black;
-  }
-}
-
-.font-style-normal {
-  >span {
-    font-style: normal;
-    color: inherit;
-  }
-}
-
-.text-decoration-underline {
-  >span {
-    text-decoration: underline;
-    color: black;
-  }
-}
-
-.text-decoration-none {
-  >span {
-    text-decoration: none;
-    color: inherit;
-  }
-}
-
-.el-color-picker__panel {
-  pointer-events: initial;
-}
-</style>
+<style src="./style.scss" lang="scss"></style>

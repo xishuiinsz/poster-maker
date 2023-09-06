@@ -150,20 +150,20 @@ const bmpMouseupEvt = (e) => {
 }
 // 右下点鼠标按下事件
 const rbpMousedownEvt = (e) => {
-  document.addEventListener('mousemove', rbpMousemoveEvt, true)
-  document.addEventListener('mouseup', rbpMouseupEvt, true)
+  // document.addEventListener('mousemove', rbpMousemoveEvt, true)
+  // document.addEventListener('mouseup', rbpMouseupEvt, true)
   emits('rbpMousedown', e)
 }
 // 右下点鼠标移动事件
-const rbpMousemoveEvt = (e) => {
-  window.getSelection()?.empty()
-  emits('rbpResize', e)
-}
+// const rbpMousemoveEvt = (e) => {
+//   window.getSelection()?.empty()
+//   emits('rbpResize', e)
+// }
 // 右下点鼠标释放事件
-const rbpMouseupEvt = (e) => {
-  document.removeEventListener('mousemove', rbpMousemoveEvt, true)
-  document.removeEventListener('mouseup', rbpMouseupEvt, true)
-}
+// const rbpMouseupEvt = (e) => {
+//   document.removeEventListener('mousemove', rbpMousemoveEvt, true)
+//   document.removeEventListener('mouseup', rbpMouseupEvt, true)
+// }
 </script>
 <style lang="scss" scoped>
 $handlerSize1: 20px;

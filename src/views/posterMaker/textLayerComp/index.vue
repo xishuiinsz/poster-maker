@@ -1,14 +1,14 @@
 <template>
   <div @click.stop @mousedown.stop @mouseup.stop :data-layer-id="layerData.id" :class="getLayerItemClass(layerData)"
-    class="layer-item" :style="getLayerStyle(layerData)">
-    <div class="layer-element" style="outline: none;" :class="layerElementClassName" ref="refLayerElement"
-      v-html="layerData.html" @mousemove.stop></div>
+    class="layer-item" :style="getLayerCommonStyle">
+    <div class="layer-element" :style="getLayerElementStyle" style="display: grid;" :class="layerElementClassName"
+      ref="refLayerElement" v-html="layerData.html" @mousemove.stop></div>
     <layerZoomBox v-bind="propsToLayZoomBox" @layerZoomBoxMouseupEvt="layerZoomBoxMouseupHandler"
       @rbpMousedown="rbpMousedownEvt" />
   </div>
 </template>
 <script setup>
-import { ref, nextTick, toRaw, onMounted } from 'vue'
+import { ref, computed, toRaw, onMounted } from 'vue'
 import { useCanvasStageStore } from '../useCanvasStage.js'
 import { getAncestorByClass, isAncestorElement, getLayerItemDomById, getTransformScaleValues, setTransformScaleValues } from '../utils/index.js'
 import { lineHeightDefault } from '../utils/textLayer'
@@ -17,7 +17,7 @@ import { toolbar, fontFamilyFormats } from './richText'
 import { getTextLayerHtmlById } from '../utils/textLayer.js'
 const refLayerElement = ref(null)
 const canvasStageStore = useCanvasStageStore()
-const { updateLayerDataById } = canvasStageStore
+const { updateLayerDataById, silentUpdateLayerDataById } = canvasStageStore
 const cacheData = {
 
 }
@@ -27,13 +27,21 @@ const props = defineProps({
     default: () => { },
   },
 })
-
+// 图层缩放值
+const scaleLayer = ref(1)
 const layerElementClassName = ref('')
 const propsToLayZoomBox = {
   id: props.layerData.id,
   type: props.layerData.type,
 }
+const getLayerElementStyle = computed(() => {
+  const { width, height, x, y, rotate } = props.layerData
+  return {
+    width: isNaN(width) ? width : `${width}px`,
+    height: isNaN(height) ? height : `${height}px`,
+  }
 
+})
 function renderTinymcd (target) {
   tinymce.init({
     target,
@@ -68,16 +76,14 @@ function getLayerItemClass (layer) {
   return className
 }
 
-function getLayerStyle (item) {
-  const { width, height, x, y, rotate } = item
+const getLayerCommonStyle = computed(() => {
+  const { width, height, x, y, rotate } = props.layerData
   return {
-    width: width > 0 ? `${width}px` : width === '100%' ? '100%' : 'fit-content',
-    height: height > 0 ? `${height}px` : height === '100%' ? '100%' : 'fit-content',
     transform: rotate ? `rotate(${rotate}deg)` : `rotate(0deg)`,
     left: `${x}px`,
     top: `${y}px`,
   }
-}
+})
 
 // 文本图层点击事件
 function textLayerClickEvt ({ target }) {
@@ -142,7 +148,7 @@ function layerZoomBoxMouseupHandler (target) {
 // 右下点 鼠标按下事件
 function rbpMousedownEvt (e) {
   document.addEventListener('mousemove', rbpResizeHandler)
-  document.addEventListener('mouseup', rbpMouseUpHandler)
+  document.addEventListener('mouseup', rbpMouseUpHandler, true)
   const { width, height, id } = props.layerData
   const rootEle = getLayerItemDomById(id)
   Object.assign(rootEle.style, { 'transform-origin': '0 0' })
@@ -151,11 +157,7 @@ function rbpMousedownEvt (e) {
     rootEle
   })
 }
-// 鼠标 释放事件
-function rbpMouseUpHandler () {
-  document.removeEventListener('mousemove', rbpResizeHandler)
-  document.removeEventListener('mouseup', rbpMouseUpHandler)
-}
+
 // 鼠标 移动事件
 function rbpResizeHandler ({ movementX, movementY }) {
   const rawScaleRate = toRaw(canvasStageStore.scaleRate)
@@ -165,6 +167,20 @@ function rbpResizeHandler ({ movementX, movementY }) {
   const currentScale = getTransformScaleValues(cacheData.rootEle).x
   const scaleTotal = parseFloat(scale) + parseFloat(currentScale)
   setTransformScaleValues(cacheData.rootEle, { x: scaleTotal, y: scaleTotal })
+}
+
+// 鼠标 释放事件
+function rbpMouseUpHandler () {
+  document.removeEventListener('mouseup', rbpMouseUpHandler)
+  document.removeEventListener('mousemove', rbpResizeHandler)
+  // Object.assign(cacheData.rootEle.style, { 'transform-origin': 'center center' })
+  const scale = getTransformScaleValues(cacheData.rootEle).x;
+  const { width, id, height } = props.layerData
+  const _width = width * scale
+  const _height = height * scale
+  setTransformScaleValues(cacheData.rootEle, { x: 1, y: 1 })
+  updateLayerDataById({ id, width: _width, height: _height })
+
 }
 onMounted(() => { })
 </script>
@@ -177,6 +193,8 @@ onMounted(() => { })
     .layer-element {
 
       outline: none;
+
+
     }
 
 
@@ -195,5 +213,9 @@ onMounted(() => { })
     cursor: default;
     -webkit-user-modify: read-write-plaintext-only;
   }
+}
+
+:focus-visible {
+  outline: 0;
 }
 </style>
