@@ -48,8 +48,10 @@ function renderTinymcd (target) {
     inline: true,
     promotion: false,
     menubar: false,
+    width: 600,
     toolbar,
     branding: false,
+    auto_focus: true,
     language: 'zh-Hans',
     font_size_formats: '11px 12px 14px 16px 18px 24px 36px 48px 56px 72px',
     font_family_formats: fontFamilyFormats,
@@ -89,9 +91,6 @@ const getLayerCommonStyle = computed(() => {
 function textLayerClickEvt ({ target }) {
   const layerElement = getAncestorByClass(target, 'layer-element')
   renderTinymcd(layerElement)
-  setTimeout(() => {
-    layerElement.focus()
-  })
 }
 
 // 注册文本图层点击事件
@@ -109,7 +108,7 @@ function unregTextLayerClickEvt () {
 
 // 文本图层失焦事件
 function textLayerBlurEvt (e) {
-  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'auto' })
+  // 如果点击范围在tinymce工具栏上
   if (e.relatedTarget && tinymce?.activeEditor?.container) {
     const editor = tinymce.activeEditor.container
     const flag = isAncestorElement(e.relatedTarget, editor)
@@ -117,10 +116,13 @@ function textLayerBlurEvt (e) {
       return
     }
   }
+
   // 清除tinymce实例
   tinymce.remove()
   unregTextLayerBlurEvt
   const el = refLayerElement.value
+  const layerCommon = getAncestorByClass(el, 'layer-text')
+  layerCommon instanceof HTMLDivElement && layerCommon.classList.remove('layer-item-focus-in')
   el.removeAttribute('id')
   const { id, html } = props.layerData
   const htmlNew = getTextLayerHtmlById(id)
@@ -130,7 +132,7 @@ function textLayerBlurEvt (e) {
 // 注册文本图层失焦事件
 function regTextLayerBlurEvt () {
   const el = refLayerElement.value
-  el.addEventListener('blur', textLayerBlurEvt, true)
+  el.addEventListener('focusout', textLayerBlurEvt, true)
 }
 // 反注册文本图层失焦事件
 function unregTextLayerBlurEvt () {
@@ -139,10 +141,8 @@ function unregTextLayerBlurEvt () {
 }
 
 function layerZoomBoxMouseupHandler (target) {
-  Object.assign(cacheData, {
-    zoomBox: target
-  })
-  Object.assign(cacheData.zoomBox.style, { pointerEvents: 'none' })
+  const layerCommon = getAncestorByClass(target, 'layer-item')
+  layerCommon instanceof HTMLDivElement && layerCommon.classList.add('layer-item-focus-in')
   regTextLayerClickEvt()
 }
 // 右下点 鼠标按下事件
@@ -207,11 +207,17 @@ onMounted(() => { })
     }
   }
 
+  &.layer-item-focus-in {
+    .layer-zoom-box {
+      pointer-events: none;
+    }
+  }
+
   .layer-element {
     white-space: pre-wrap;
     user-select: none;
     cursor: default;
-    -webkit-user-modify: read-write-plaintext-only;
+    line-height: 1.2;
   }
 }
 
