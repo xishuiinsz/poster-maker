@@ -149,11 +149,10 @@ function layerZoomBoxMouseupHandler (target) {
 function rbpMousedownEvt (e) {
   document.addEventListener('mousemove', rbpResizeHandler)
   document.addEventListener('mouseup', rbpMouseUpHandler, true)
-  const { width, height, id } = props.layerData
+  const { id } = props.layerData
   const rootEle = getLayerItemDomById(id)
   Object.assign(rootEle.style, { 'transform-origin': '0 0' })
   Object.assign(cacheData, {
-    aspectRate: width / height,
     rootEle
   })
 }
@@ -175,6 +174,7 @@ function rbpMouseUpHandler () {
   document.removeEventListener('mousemove', rbpResizeHandler)
   // Object.assign(cacheData.rootEle.style, { 'transform-origin': 'center center' })
   const scale = getTransformScaleValues(cacheData.rootEle).x;
+  console.log(scale);
   const { width, id, height } = props.layerData
   const _width = width * scale
   const _height = height * scale

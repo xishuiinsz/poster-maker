@@ -64,8 +64,7 @@
         <el-button type="warning" @mousedown.prevent @click="fontColorChange" :icon="Star" circle />
       </el-form-item>
       <el-form-item label="字体集">
-        <el-select @mousedown.prevent.stop @mouseup.prevent.stop @focus="fontFamilyFocus" @change="fontFamilyChange"
-          v-model="fontFamily">
+        <el-select @mousedown.prevent.stop @mouseup.prevent.stop @change="fontFamilyChange" v-model="fontFamily">
           <el-option label="微软雅黑" value="microsoft yahei"></el-option>
           <el-option label="华文黑体" value="STHeiTi"></el-option>
           <el-option label="苹方简体" value="PingFang SC"></el-option>
@@ -128,19 +127,20 @@ import {
   removeLayerItemModelById,
   getRandomColor
 } from '../utils/index.js'
-import { restoreSelectionRange } from '../utils/textLayer.js'
+import { getMultiTextLayers } from '../utils/textLayer.js'
 import { regLscCb } from '../useLayerSelectChange.js'
 
 const rotateDefault = 0
 const canvasStageStore = useCanvasStageStore()
-const { updateLayerDataById, getLayerDataById, getLayerTypeById } = canvasStageStore
+const { updateLayerDataById, getLayerDataById, silentUpdateLayerDataById } = canvasStageStore
 const rotateLayer = ref(rotateDefault)
 const fontSize = ref(14)
 const fontFamily = ref('microsoft yahei')
 const fontColor = ref('#333')
 const activeTabItem = ref('text')
+
 // 回显元素旋转角度
-const echoLayerRotate = (ids) => {
+const echoSingleLayerRotate = (ids) => {
   if (ids.length === 1) {
     const [id] = ids
     const layerData = getLayerDataById(id)
@@ -152,10 +152,11 @@ const echoLayerRotate = (ids) => {
 const handleClick = (tab, event) => {
   console.log(tab, event)
 }
+
 // 图层change事件
 const selectedLayerChange = (newSelectedIds, oldSelectedIds) => {
-  // 回显rotate
-  echoLayerRotate(newSelectedIds)
+  // 回显单图层的rotate
+  echoSingleLayerRotate(newSelectedIds)
 }
 
 // 元素旋转角度change事件
@@ -190,18 +191,38 @@ function scaleChange (currentValue, oldValue) {
 
 function fontColorChange () {
   const color = getRandomColor()
-  setRangeStyle({ color })
+  setTextLayersStyle({ color })
 }
 
 // 字体集列表出现|隐藏回调
 function fontFamilyFocus (flag) {
-  restoreSelectionRange()
+
 }
 
 // 字体集改变事件
 function fontFamilyChange (value) {
 
 
+}
+
+// 设置(多)元素样式
+function setTextLayersStyle (option) {
+  const texLayers = getMultiTextLayers()
+  texLayers.length && texLayers.forEach(layer => {
+    const layerElement = layer.querySelector('.layer-element')
+    if (layerElement) {
+      const content = layerElement.innerHTML
+      layerElement.innerHTML = ''
+      const p = document.createElement('p')
+      p.innerHTML = content
+      Object.assign(p.style, option)
+      layerElement.appendChild(p)
+      // “静默”更新图层数据
+      const id = layer.dataset.layerId
+      const html = layerElement.innerHTML
+      silentUpdateLayerDataById({ id, html })
+    }
+  })
 }
 
 // 字号输入框鼠标按下事件
@@ -211,13 +232,13 @@ function fontSizeInputMousedown () { }
 // 字号输入框change事件
 function fontSizeChange (value) {
   document.getSelection()?.empty()
-  setRangeStyle({ fontSize: `${value}px` })
+  setTextLayersStyle({ fontSize: `${value}px` })
 }
 
 // 增加 | 减少 字号
 function fontSizeAdd (num) {
   fontSize.value = Number(unref(fontSize)) + num
-  setRangeStyle({ fontSize: `${unref(fontSize)}px` })
+  setTextLayersStyle({ fontSize: `${unref(fontSize)}px` })
 }
 
 function handleSuccess (response) {
@@ -329,6 +350,7 @@ function layersUngroup () {
     }
   }
 }
+
 // 删除
 function layersRemove () {
   const rawSelectedLayerIds = toRaw(canvasStageStore.selectedLayerIds)
@@ -356,93 +378,30 @@ function echoStyleBasedOnContainer (element) {
 
 // 全选
 function layersSelectAll () { }
-// 选区变化事件
-const selectionchangeEvt = (e) => {
-  const selection = document.getSelection()
-  if (selection.rangeCount) {
-    const range = selection?.getRangeAt(0)
-    let container
-    if (range?.collapsed) {
-      if (range.startContainer.nodeType === 1) {
-        container = range.startContainer
-      }
-      if (range.startContainer.nodeType === 3) {
-        container = range.startContainer.parentElement
-      }
-    } else {
-      if (range.endContainer.nodeType === 1) {
-        container = range.endContainer
-      }
-      if (range.endContainer.nodeType === 3) {
-        container = range.endContainer.parentElement
-      }
-    }
-    echoStyleBasedOnContainer(container)
-  }
-}
-// 设置选区样式
-function setRangeStyle (option) {
-  const selection = document.getSelection()
-  if (selection.rangeCount) {
-    const range = selection?.getRangeAt(0)
-    if (!range?.collapsed && !!range?.toString()) {
-      const container = getContainerBasedOnRange(range)
-      if (container) {
-        Object.assign((container).style, option)
-      } else {
-        const textContent = range?.toString()
-        const span = document.createElement('span')
-        span.innerText = textContent
-        Object.assign(span.style, option)
-        range.deleteContents()
-        range.insertNode(span)
-      }
-    }
-  }
-}
 
-function getContainerBasedOnRange (range) {
-  const { startOffset, startContainer, endOffset, endContainer, commonAncestorContainer } = range
-  if (endContainer.nodeType === 1) {
-    const container = commonAncestorContainer.childNodes[endOffset - 1]
-    if (container.textContent === range.toString()) {
-      return container
-    }
-  }
-  if (commonAncestorContainer === startContainer && commonAncestorContainer === endContainer) {
-    if (commonAncestorContainer.textContent === range.toString()) {
-      return commonAncestorContainer.parentNode
-    }
-  }
-  return null
-}
 
 // 加粗
 function fontWeigthClick () {
   const fontWeight = styleOptions.fontWeight === 'normal' ? 'bold' : 'normal'
-  setRangeStyle({ fontWeight })
+  setTextLayersStyle({ fontWeight })
 }
 // 斜体
 function fontStyleClick () {
   const fontStyle = styleOptions.fontStyle === 'normal' ? 'italic' : 'normal'
-  setRangeStyle({ fontStyle })
+  setTextLayersStyle({ fontStyle })
 }
 
 // 下划线
 function textDecorationClick () {
   const textDecoration = styleOptions.textDecoration === 'none' ? 'underline' : 'none'
-  setRangeStyle({ textDecoration })
+  setTextLayersStyle({ textDecoration })
 }
 
 onMounted(() => {
-  // 注册选区变化
-  document.addEventListener('selectionchange', selectionchangeEvt, true)
+  // 注册图层选择的变化
   regLscCb(selectedLayerChange)
 })
-onUnmounted(() => {
-  // 注册选区变化
-  document.removeEventListener('selectionchange', selectionchangeEvt)
-})
+onUnmounted(() => { })
 
 </script>
 <style src="./style.scss" lang="scss"></style>

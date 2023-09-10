@@ -83,6 +83,17 @@ export const restoreSelectionRange = () => {
   }
 }
 
+// 获取多个活动文本图层
+export const getMultiTextLayers = () => {
+  const activeLayers = getActiveLayers()
+  if (activeLayers.length) {
+    const activeTextLayers = activeLayers.filter((el) => el.classList.contains('layer-text'))
+    if (activeTextLayers.length) {
+      return activeTextLayers
+    }
+  }
+  return []
+}
 export const getSingleTextLayer = () => {
   const textLayers = getActiveLayers()
   if (textLayers.length === 1) {
